@@ -8,6 +8,6 @@ updates:
   - package-ecosystem: "npm" # See documentation for possible values
     directory:
       - "/frontend"
-      - "/backend"# Location of package manifests
+      - "/backend" # Location of package manifests
     schedule:
       interval: "daily"
