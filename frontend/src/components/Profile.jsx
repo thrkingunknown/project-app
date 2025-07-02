@@ -42,7 +42,7 @@ const Profile = () => {
     }
     
     axios
-      .delete(`http://localhost:3000/posts/${postId}`, {
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${postId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {

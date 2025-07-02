@@ -53,7 +53,7 @@ const PostView = () => {
         console.log(res);
         alert(res.data);
         setComment("");
-        window.location.reload(); // reload to show new comment
+        window.location.reload();
       })
       .catch((err) => {
         console.log(err);
@@ -68,7 +68,7 @@ const PostView = () => {
     }
 
     axios
-      .delete(`http://localhost:3000/comments/${commentId}`, {
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
