@@ -225,9 +225,10 @@ app.post('/resend-verification', async (req, res) => {
 app.get('/posts', async (req, res) => {
     try {
         var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
-        res.send(posts);
+        res.json(posts);
     } catch (error) {
-        res.send('Error getting posts: ' + error);
+        console.error('Error getting posts:', error);
+        res.status(500).json({ error: 'Error getting posts', message: error.message });
     }
 });
 

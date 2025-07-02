@@ -13,18 +13,30 @@ import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   var [posts, setPosts] = useState([]);
+  var [loading, setLoading] = useState(true);
   var navigate = useNavigate();
   var user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
         console.log(res);
-        setPosts(res.data);
+        // Ensure we always set an array
+        if (Array.isArray(res.data)) {
+          setPosts(res.data);
+        } else {
+          console.error('Posts data is not an array:', res.data);
+          setPosts([]);
+        }
       })
       .catch((err) => {
-        console.log(err);
+        console.error('Error fetching posts:', err);
+        setPosts([]); // Set empty array on error
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -65,8 +77,19 @@ const Home = () => {
       </Typography>
       <br />
       
-      <Grid container spacing={2}>
-        {posts.map((post) => (
+      {loading ? (
+        <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+          Loading posts...
+        </Typography>
+      ) : (
+        <>
+          {Array.isArray(posts) && posts.length === 0 ? (
+            <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+              No posts available. Be the first to create one!
+            </Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {Array.isArray(posts) && posts.map((post) => (
           <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4, xl: 4, xxl: 4 }} key={post._id}>
             <Card
               sx={{
@@ -154,13 +177,10 @@ const Home = () => {
               </CardContent>
             </Card>
           </Grid>
-        ))}
-      </Grid>
-      
-      {posts.length === 0 && (
-        <Typography variant="h6" style={{ textAlign: 'center', marginTop: '50px' }}>
-          No posts yet. Be the first to create one!
-        </Typography>
+              ))}
+            </Grid>
+          )}
+        </>
       )}
     </Container>
   );
