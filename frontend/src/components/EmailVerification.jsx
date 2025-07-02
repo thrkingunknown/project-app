@@ -20,7 +20,7 @@ const EmailVerification = () => {
 
     // verify email with backend
     axios
-      .get(`http://localhost:3000/verify-email?token=${token}`)
+      .get(`${process.env.REACT_APP_BACKEND_URL}/verify-email?token=${token}`)
       .then((response) => {
         console.log('Verification response:', response.data);
         setStatus('success');

@@ -19,7 +19,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/users/${id}`)
+      .get(`${process.env.REACT_APP_BACKEND_URL}/users/${id}`)
       .then((res) => {
         console.log("user data", res.data);
         setUserData(res.data);

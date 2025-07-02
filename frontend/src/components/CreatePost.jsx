@@ -31,7 +31,7 @@ const CreatePost = () => {
 
     console.log("creating post", data);
     axios
-      .post("http://localhost:3000/posts", data, {
+      .post(`${process.env.REACT_APP_BACKEND_URL}/posts`, data, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {

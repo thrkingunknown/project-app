@@ -35,7 +35,7 @@ const AdminDashboard = () => {
 
     // get users
     axios
-      .get("http://localhost:3000/users", {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
 
     // get posts
     axios
-      .get("http://localhost:3000/posts")
+      .get(`${process.env.REACT_APP_BACKEND_URL}/posts`)
       .then((res) => {
         console.log("posts", res.data);
         setPosts(res.data);
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
     }
 
     axios
-      .delete(`http://localhost:3000/users/${userId}`, {
+      .delete(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
 
   var handleDeletePost = (postId) => {
     axios
-      .delete(`http://localhost:3000/posts/${postId}`, {
+      .delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${postId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {

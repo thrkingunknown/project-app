@@ -18,7 +18,7 @@ const Home = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/posts")
+      .get(`${process.env.REACT_APP_BACKEND_URL}/posts`)
       .then((res) => {
         console.log(res);
         setPosts(res.data);
@@ -41,7 +41,7 @@ const Home = () => {
     
     console.log('deleting post', id);
     axios
-      .delete(`http://localhost:3000/posts/${id}`, {
+      .delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
