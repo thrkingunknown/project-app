@@ -22,7 +22,7 @@ const PostView = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`)
+      .get(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`)
       .then((res) => {
         console.log("post data", res.data);
         setPost(res.data);
@@ -45,7 +45,7 @@ const PostView = () => {
     }
 
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}/comments`,
+      .post(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}/comments`,
         { content: comment },
         { headers: { Authorization: `Bearer ${token}` } }
       )

@@ -22,7 +22,7 @@ const ResendVerification = () => {
     setMessage('');
 
     try {
-      var response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/resend-verification`, {
+      var response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/resend-verification`, {
         email: email
       });
       

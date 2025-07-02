@@ -21,7 +21,7 @@ const Register = () => {
     setIsError(false);
 
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/register`, data)
+      .post(`${import.meta.env.VITE_BACKEND_URL}/register`, data)
       .then((response) => {
         console.log("Registration successful:", response.data);
         setMessage(response.data);

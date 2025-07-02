@@ -19,7 +19,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/users/${id}`)
+      .get(`${import.meta.env.VITE_BACKEND_URL}/users/${id}`)
       .then((res) => {
         console.log("user data", res.data);
         setUserData(res.data);
@@ -96,7 +96,7 @@ const Profile = () => {
         
         <Grid container spacing={2}>
           {userData.posts && userData.posts.map((post) => (
-            <Grid item xs={12} key={post._id}>
+            <Grid size={12} key={post._id}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" component="h3" gutterBottom>

@@ -18,7 +18,7 @@ const Home = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/posts`)
+      .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
         console.log(res);
         setPosts(res.data);
@@ -41,7 +41,7 @@ const Home = () => {
     
     console.log('deleting post', id);
     axios
-      .delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
@@ -56,7 +56,7 @@ const Home = () => {
   };
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '20px' }}>
+    <Container maxWidth="xxl" style={{ marginTop: '20px' }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Welcome To FAXRN
       </Typography>
@@ -65,41 +65,92 @@ const Home = () => {
       </Typography>
       <br />
       
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {posts.map((post) => (
-          <Grid item xs={12} key={post._id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="h2" gutterBottom>
+          <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4, xl: 4, xxl: 4 }} key={post._id}>
+            <Card
+              sx={{
+                height: '100%',
+                maxWidth: '200%',
+                width: '100%',
+                margin: 'auto',
+                boxShadow: 3,
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4
+                }
+              }}
+            >
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  gutterBottom
+                  sx={{
+                    fontWeight: 'bold',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    minHeight: '3.6em',
+                    fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                  }}
+                >
                   {post.title}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
-                  By: {post.author?.username || 'Unknown'} | {new Date(post.createdAt).toLocaleDateString()}
+                  By: {post.author?.username || 'Unknown'}
                 </Typography>
-                <Typography variant="body1" paragraph>
-                  {post.content.substring(0, 200)}...
+                <Typography variant="caption" color="textSecondary" gutterBottom>
+                  {new Date(post.createdAt).toLocaleDateString()}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Comments: {post.comments?.length || 0} | Likes: {post.likes || 0}
-                </Typography>
-                <br />
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => handlePostClick(post._id)}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    flexGrow: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    mb: 2,
+                    lineHeight: 1.6
+                  }}
                 >
-                  Read More
-                </Button>
-                &nbsp;&nbsp;
-                {(user.id === post.author?._id || user.role === 'admin') && (
+                  {post.content.substring(0, 1000)}...
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                  💬 {post.comments?.length || 0} | 👍 {post.likes || 0}
+                </Typography>
+                <div style={{ marginTop: 'auto' }}>
                   <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleDelete(post._id)}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handlePostClick(post._id)}
+                    size="small"
+                    fullWidth
+                    sx={{ mb: 1 }}
                   >
-                    Delete
+                    Read More
                   </Button>
-                )}
+                  {(user.id === post.author?._id || user.role === 'admin') && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDelete(post._id)}
+                      size="small"
+                      fullWidth
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </Grid>

@@ -21,7 +21,7 @@ const Login = () => {
     setIsError(false);
 
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/login`, data)
+      .post(`${import.meta.env.VITE_BACKEND_URL}/login`, data)
       .then((response) => {
         console.log("Login successful:", response.data);
         if (response.data.token) {
