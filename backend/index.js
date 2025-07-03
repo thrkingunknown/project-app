@@ -64,6 +64,23 @@ var sendVerificationEmail = async (email, token, username) => {
     }
 };
 
+// health check endpoint
+app.get('/', (req, res) => {
+    res.json({
+        message: 'FAXRN Backend API is running!',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        database: 'Connected'
+    });
+});
+
 // auth middleware
 var checkAuth = (req, res, next) => {
     try {
@@ -355,6 +372,12 @@ app.delete('/users/:id', checkAuth, async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-  console.log(`${process.env.PLATFORM_NAME} Server is running on http://localhost:${port}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`${process.env.PLATFORM_NAME} Server is running on http://localhost:${port}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
