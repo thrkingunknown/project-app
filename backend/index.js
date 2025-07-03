@@ -12,7 +12,7 @@ var bcrypt = require('bcrypt');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 
-var port = process.env.PORT || 3000;
+var port = 3000;
 
 var app = express();
 
@@ -183,7 +183,7 @@ app.get('/verify-email', async (req, res) => {
         if (!token) {
             return res.send('Verification token is required');
         }
-
+        
         var user = await User.findOne({
             verificationToken: token,
             verificationTokenExpires: { $gt: Date.now() }
