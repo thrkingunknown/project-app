@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-
 const PostView = () => {
   var { id } = useParams();
   var navigate = useNavigate();
@@ -91,8 +90,8 @@ const PostView = () => {
   }
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '20px' }}>
-      <Paper style={{ padding: '30px' }}>
+    <Container maxWidth="md" style={{ marginTop: '20px' }} >
+      <Paper style={{ padding: '30px' }} className="combined sh" sx={{ boxShadow: 5, borderRadius: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           {post.title}
         </Typography>
@@ -107,7 +106,7 @@ const PostView = () => {
           Likes: {post.likes || 0}
         </Typography>
         <br />
-        <Button variant="outlined" onClick={() => navigate('/')}>
+        <Button variant="outlined" onClick={() => navigate('/')} className="combined sh">
           Back to Home
         </Button>
       </Paper>
@@ -115,8 +114,8 @@ const PostView = () => {
       <br />
 
       {/* Comment Section */}
-      <Paper style={{ padding: '20px' }}>
-        <Typography variant="h5" gutterBottom>
+      <Paper style={{ padding: '20px' }} className="combined sh" sx={{ boxShadow: 5, borderRadius: 2 }}>
+        <Typography variant="h6" gutterBottom>
           Comments ({post.comments?.length || 0})
         </Typography>
         
@@ -131,6 +130,7 @@ const PostView = () => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               margin="normal"
+              className="combined sh"
             />
             <br />
             <br />
@@ -138,6 +138,7 @@ const PostView = () => {
               variant="contained" 
               color="primary" 
               onClick={handleCommentSubmit}
+              className="combined sh"
             >
               Add Comment
             </Button>
@@ -150,7 +151,7 @@ const PostView = () => {
         <br />
 
         {post.comments && post.comments.map((comm) => (
-          <Card key={comm._id} style={{ marginBottom: '10px' }}>
+          <Card key={comm._id} style={{ marginBottom: '10px' }} sx={{ boxShadow: 3, borderRadius: 1 }}>
             <CardContent>
               <Typography variant="body2" color="textSecondary">
                 {comm.author?.username || 'Unknown'} | {new Date(comm.createdAt).toLocaleDateString()}

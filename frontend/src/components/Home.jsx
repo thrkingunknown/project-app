@@ -12,6 +12,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CommentIcon from "@mui/icons-material/Comment";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ThemeProvider from "@mui/material";
+
 
 const Home = () => {
   var [posts, setPosts] = useState([]);
@@ -71,11 +73,11 @@ const Home = () => {
 
   return (
     <Container maxWidth="xxl" style={{ marginTop: '20px' }}>
-      <Typography variant="h4" component="h1" gutterBottom>
+      <Typography variant="h4" component="h1" gutterBottom color="primary">
         Welcome To FAXRN
       </Typography>
-      <Typography variant="h6" gutterBottom>
-        Latest Posts
+      <Typography variant="h6" gutterBottom color="textSecondary">
+        Latest Posts 
       </Typography>
       <br />
       
@@ -94,6 +96,8 @@ const Home = () => {
               {Array.isArray(posts) && posts.map((post) => (
           <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4, xl: 4, xxl: 4 }} key={post._id}>
             <Card
+              variant="outlined"
+              className="combined sh"
               sx={{
                 height: '100%',
                 maxWidth: '200%',
@@ -155,22 +159,24 @@ const Home = () => {
                 </Typography>
                 <div style={{ marginTop: 'auto' }}>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="primary"
                     onClick={() => handlePostClick(post._id)}
                     size="small"
                     fullWidth
                     sx={{ mb: 1 }}
+                    className="combined sh"
                   >
                     Read More
                   </Button>
-                  {(user.id === post.author?._id || user.role === 'admin') && (
+                  {user && user.id && (user.id === post.author?._id || user.role === 'admin') && (
                     <Button
                       variant="outlined"
                       color="error"
                       onClick={() => handleDelete(post._id)}
                       size="small"
                       fullWidth
+                      className="combined sh"
                     >
                       Delete
                     </Button>

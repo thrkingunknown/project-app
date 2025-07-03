@@ -1,17 +1,25 @@
 import React from "react";
-import { AppBar, Box, Toolbar, IconButton, Typography, Button } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 
+
 const Navbar = () => {
   var navigate = useNavigate();
-  var token = localStorage.getItem('token');
-  var user = JSON.parse(localStorage.getItem('user') || '{}');
+  var token = localStorage.getItem("token");
+  var user = JSON.parse(localStorage.getItem("user") || "{}");
 
   var handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
     window.location.reload();
   };
 
@@ -20,24 +28,23 @@ const Navbar = () => {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" color="primary">
           <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-            >
-              {" "}
-              <MenuIcon />
-            </IconButton>
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
               {" "}
-              <Typography variant="h5" component="div">
+              <Typography variant="h5" component="div" className="scale" >
                 FAXRN
               </Typography>
             </Link>
             &nbsp;&nbsp;&nbsp;
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                display: { xs: "none", md: "flex" },
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               {user.username
                 ? `Welcome, ${user.username}`
                 : "Welcome to the Forum"}
@@ -108,6 +115,6 @@ const Navbar = () => {
       </Box>
     </div>
   );
-}
+};
 
-export default Navbar
+export default Navbar;
