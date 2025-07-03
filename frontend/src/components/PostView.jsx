@@ -19,8 +19,8 @@ const PostView = () => {
   var navigate = useNavigate();
   var [post, setPost] = useState(null);
   var [comment, setComment] = useState("");
-  var user = JSON.parse(localStorage.getItem('user') || '{}');
-  var token = localStorage.getItem('token');
+  var user = JSON.parse(localStorage.getItem("user") || "{}");
+  var token = localStorage.getItem("token");
 
   useEffect(() => {
     axios
@@ -37,20 +37,20 @@ const PostView = () => {
 
   var likehandler = () => {
     if (!token) {
-      alert('Please login to like this post');
+      alert("Please login to like this post");
       return;
     }
 
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}/like`, null, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log(res);
-        setPost(prevPost => ({
+        setPost((prevPost) => ({
           ...prevPost,
           likes: res.data.likes,
-          likedBy: res.data.likedBy
+          likedBy: res.data.likedBy,
         }));
         console.log(res.data.message);
       })
@@ -64,22 +64,23 @@ const PostView = () => {
           alert("Error processing like");
         }
       });
-  }
+  };
   var handleCommentSubmit = () => {
     if (!token) {
-      alert('Please login to comment');
+      alert("Please login to comment");
       return;
     }
-    
+
     if (!comment.trim()) {
-      alert('Please enter a comment');
+      alert("Please enter a comment");
       return;
     }
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}/comments`,
+      .post(
+        `${import.meta.env.VITE_BACKEND_URL}/posts/${id}/comments`,
         { content: comment },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       )
       .then((res) => {
         console.log(res);
@@ -95,13 +96,13 @@ const PostView = () => {
 
   var handleDeleteComment = (commentId) => {
     if (!token) {
-      alert('Please login first');
+      alert("Please login first");
       return;
     }
 
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/comments/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log(res);
@@ -116,7 +117,7 @@ const PostView = () => {
 
   if (!post) {
     return (
-      <Container maxWidth="md" style={{ marginTop: '50px' }}>
+      <Container maxWidth="md" style={{ marginTop: "50px" }}>
         <Typography>Loading...</Typography>
       </Container>
     );
@@ -147,14 +148,20 @@ const PostView = () => {
           Back to Home
         </Button>
         &nbsp;
-
         <Button
           variant={post.likedBy?.includes(user.id) ? "contained" : "outlined"}
-          startIcon={post.likedBy?.includes(user.id) ? <ThumbUpIcon /> : <ThumbUpOffAltIcon />}
+          startIcon={
+            post.likedBy?.includes(user.id) ? (
+              <ThumbUpIcon />
+            ) : (
+              <ThumbUpOffAltIcon />
+            )
+          }
           onClick={likehandler}
           disabled={!token}
         >
-          {post.likedBy?.includes(user.id) ? "Liked" : "Like"}: {post.likes || 0}
+          {post.likedBy?.includes(user.id) ? "Liked" : "Like"}:{" "}
+          {post.likes || 0}
         </Button>
       </Paper>
 
@@ -182,6 +189,7 @@ const PostView = () => {
               margin="normal"
               className="combined sh"
             />
+
             <br />
             <br />
             <Button

@@ -1,37 +1,47 @@
 import React, { useState } from "react";
-import { Container, Paper, Typography, TextField, Button, Alert } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ResendVerification = () => {
   var navigate = useNavigate();
-  var [email, setEmail] = useState('');
-  var [message, setMessage] = useState('');
+  var [email, setEmail] = useState("");
+  var [message, setMessage] = useState("");
   var [loading, setLoading] = useState(false);
   var [success, setSuccess] = useState(false);
 
   var handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
-      setMessage('Please enter your email address');
+      setMessage("Please enter your email address");
       return;
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      var response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/resend-verification`, {
-        email: email
-      });
-      
-      console.log('Resend verification response:', response.data);
+      var response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/resend-verification`,
+        {
+          email: email,
+        },
+      );
+
+      console.log("Resend verification response:", response.data);
       setMessage(response.data);
       setSuccess(true);
     } catch (error) {
-      console.error('Resend verification error:', error);
-      setMessage('Error sending verification email. Please try again.');
+      console.error("Resend verification error:", error);
+      setMessage("Error sending verification email. Please try again.");
       setSuccess(false);
     } finally {
       setLoading(false);
@@ -39,12 +49,12 @@ const ResendVerification = () => {
   };
 
   var handleGoToLogin = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: '100px' }}>
-      <Paper style={{ padding: '40px' }}>
+    <Container maxWidth="sm" style={{ marginTop: "100px" }}>
+      <Paper style={{ padding: "40px" }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Resend Verification Email
         </Typography>
@@ -55,9 +65,7 @@ const ResendVerification = () => {
 
         {message && (
           <>
-            <Alert severity={success ? "success" : "error"}>
-              {message}
-            </Alert>
+            <Alert severity={success ? "success" : "error"}>{message}</Alert>
             <br />
           </>
         )}
@@ -72,6 +80,7 @@ const ResendVerification = () => {
             margin="normal"
             required
           />
+
           <br />
           <br />
           <Button
@@ -82,18 +91,18 @@ const ResendVerification = () => {
             disabled={loading}
             size="large"
           >
-            {loading ? 'Sending...' : 'Send Verification Email'}
+            {loading ? "Sending..." : "Send Verification Email"}
           </Button>
         </form>
 
         <br />
         <br />
         <Typography variant="body2" color="textSecondary" align="center">
-          Already verified your email?{' '}
-          <Button 
-            color="primary" 
+          Already verified your email?{" "}
+          <Button
+            color="primary"
             onClick={handleGoToLogin}
-            style={{ textTransform: 'none' }}
+            style={{ textTransform: "none" }}
           >
             Go to Login
           </Button>

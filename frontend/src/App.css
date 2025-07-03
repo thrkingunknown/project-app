@@ -5,4 +5,13 @@
   text-align: center;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
+}
+
+/* Ensure proper background inheritance */
+body {
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease;
 }

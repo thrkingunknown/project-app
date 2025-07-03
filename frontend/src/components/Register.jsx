@@ -1,5 +1,12 @@
 import React from "react";
-import { Button, TextField, Typography, Paper, Alert, Container } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Alert,
+  Container,
+} from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -39,8 +46,10 @@ const Register = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-      <Paper style={{ padding: '30px', maxWidth: '400px', width: '100%' }}>
+    <div
+      style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}
+    >
+      <Paper style={{ padding: "30px", maxWidth: "400px", width: "100%" }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Join FAXRN
         </Typography>
@@ -51,9 +60,7 @@ const Register = () => {
 
         {message && (
           <>
-            <Alert severity={isError ? "error" : "success"}>
-              {message}
-            </Alert>
+            <Alert severity={isError ? "error" : "success"}>{message}</Alert>
             <br />
           </>
         )}
@@ -67,6 +74,7 @@ const Register = () => {
           fullWidth
           margin="normal"
         />
+
         <TextField
           id="email"
           label="Email"
@@ -78,6 +86,7 @@ const Register = () => {
           fullWidth
           margin="normal"
         />
+
         <TextField
           id="password"
           label="Password"
@@ -89,11 +98,12 @@ const Register = () => {
           fullWidth
           margin="normal"
         />
+
         <br />
         <br />
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={submitHandler}
           fullWidth
         >

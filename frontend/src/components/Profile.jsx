@@ -15,7 +15,7 @@ const Profile = () => {
   var { id } = useParams();
   var navigate = useNavigate();
   var [userData, setUserData] = useState(null);
-  var currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     axios
@@ -35,15 +35,15 @@ const Profile = () => {
   };
 
   var handleDeletePost = (postId) => {
-    var token = localStorage.getItem('token');
+    var token = localStorage.getItem("token");
     if (!token) {
-      alert('Please login first');
+      alert("Please login first");
       return;
     }
-    
+
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log(res);
@@ -52,35 +52,36 @@ const Profile = () => {
       })
       .catch((err) => {
         console.log(err);
-        alert('Error deleting post');
+        alert("Error deleting post");
       });
   };
 
   if (!userData) {
     return (
-      <Container maxWidth="md" style={{ marginTop: '50px' }}>
+      <Container maxWidth="md" style={{ marginTop: "50px" }}>
         <Typography>Loading...</Typography>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '20px' }}>
-      <Paper style={{ padding: '30px' }}>
+    <Container maxWidth="md" style={{ marginTop: "20px" }}>
+      <Paper style={{ padding: "30px" }}>
         <Typography variant="h4" component="h1" gutterBottom>
           User Profile
         </Typography>
         <Typography variant="h5" gutterBottom>
-          {userData.user?.username || 'Unknown User'}
+          {userData.user?.username || "Unknown User"}
         </Typography>
         <Typography variant="body1" color="textSecondary" gutterBottom>
-          Email: {userData.user?.email || 'N/A'}
+          Email: {userData.user?.email || "N/A"}
         </Typography>
         <Typography variant="body1" color="textSecondary" gutterBottom>
-          Role: {userData.user?.role || 'user'}
+          Role: {userData.user?.role || "user"}
         </Typography>
         <Typography variant="body1" color="textSecondary" gutterBottom>
-          Member since: {new Date(userData.user?.createdAt).toLocaleDateString()}
+          Member since:{" "}
+          {new Date(userData.user?.createdAt).toLocaleDateString()}
         </Typography>
         <Typography variant="body1" gutterBottom>
           Total Posts: {userData.posts?.length || 0}
@@ -89,49 +90,60 @@ const Profile = () => {
 
       <br />
 
-      <Paper style={{ padding: '20px' }}>
+      <Paper style={{ padding: "20px" }}>
         <Typography variant="h5" gutterBottom>
           Posts by {userData.user?.username}
         </Typography>
-        
+
         <Grid container spacing={2}>
-          {userData.posts && userData.posts.map((post) => (
-            <Grid size={12} key={post._id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" component="h3" gutterBottom>
-                    {post.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" gutterBottom>
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="body1" paragraph>
-                    {post.content.substring(0, 150)}...
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" gutterBottom>
-                    Comments: {post.comments?.length || 0} | Likes: {post.likes || 0}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => handlePostClick(post._id)}
-                  >
-                    View Post
-                  </Button>
-                  &nbsp;&nbsp;
-                  {(currentUser.id === userData.user?._id || currentUser.role === 'admin') && (
+          {userData.posts &&
+            userData.posts.map((post) => (
+              <Grid size={12} key={post._id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" component="h3" gutterBottom>
+                      {post.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      gutterBottom
+                    >
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                      {post.content.substring(0, 150)}...
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      gutterBottom
+                    >
+                      Comments: {post.comments?.length || 0} | Likes:{" "}
+                      {post.likes || 0}
+                    </Typography>
                     <Button
                       variant="outlined"
-                      color="error"
-                      onClick={() => handleDeletePost(post._id)}
+                      color="primary"
+                      onClick={() => handlePostClick(post._id)}
                     >
-                      Delete
+                      View Post
                     </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    &nbsp;&nbsp;
+                    {(currentUser.id === userData.user?._id ||
+                      currentUser.role === "admin") && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDeletePost(post._id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
         </Grid>
 
         {(!userData.posts || userData.posts.length === 0) && (

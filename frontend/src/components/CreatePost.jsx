@@ -9,10 +9,10 @@ const CreatePost = () => {
   var [data, setData] = useState({ title: "", content: "" });
 
   useEffect(() => {
-    var token = localStorage.getItem('token');
+    var token = localStorage.getItem("token");
     if (!token) {
-      alert('Please login first');
-      navigate('/login');
+      alert("Please login first");
+      navigate("/login");
     }
   }, []);
 
@@ -22,16 +22,16 @@ const CreatePost = () => {
   };
 
   var submitHandler = () => {
-    var token = localStorage.getItem('token');
+    var token = localStorage.getItem("token");
     if (!token) {
-      alert('Please login first');
+      alert("Please login first");
       return;
     }
 
     console.log("creating post", data);
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/posts`, data, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
         console.log("Post created successfully:", response.data);
@@ -45,8 +45,8 @@ const CreatePost = () => {
   };
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '50px' }}>
-      <Paper style={{ padding: '30px' }}>
+    <Container maxWidth="md" style={{ marginTop: "50px" }}>
+      <Paper style={{ padding: "30px" }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Create New Post
         </Typography>
@@ -75,19 +75,19 @@ const CreatePost = () => {
         />
         <br />
         <br />
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={submitHandler}
           size="large"
         >
           Create Post
         </Button>
         &nbsp;&nbsp;
-        <Button 
-          variant="outlined" 
-          color="secondary" 
-          onClick={() => navigate('/')}
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate("/")}
           size="large"
         >
           Cancel

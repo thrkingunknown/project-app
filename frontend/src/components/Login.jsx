@@ -1,9 +1,15 @@
 import React from "react";
-import { Button, TextField, Typography, Paper, Alert, Container } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Alert,
+  Container,
+} from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
 
 const Login = () => {
   var navigate = useNavigate();
@@ -26,8 +32,8 @@ const Login = () => {
       .then((response) => {
         console.log("Login successful:", response.data);
         if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
           setMessage("Login successful!");
           setIsError(false);
           navigate("/");
@@ -44,8 +50,10 @@ const Login = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-      <Paper style={{ padding: '30px', maxWidth: '400px', width: '100%' }}>
+    <div
+      style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}
+    >
+      <Paper style={{ padding: "30px", maxWidth: "400px", width: "100%" }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Welcome Back to FAXRN
         </Typography>
@@ -56,9 +64,7 @@ const Login = () => {
 
         {message && (
           <>
-            <Alert severity={isError ? "error" : "success"}>
-              {message}
-            </Alert>
+            <Alert severity={isError ? "error" : "success"}>{message}</Alert>
             <br />
           </>
         )}
@@ -73,6 +79,7 @@ const Login = () => {
           fullWidth
           margin="normal"
         />
+
         <TextField
           id="password"
           label="Password"
@@ -84,11 +91,12 @@ const Login = () => {
           fullWidth
           margin="normal"
         />
+
         <br />
         <br />
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={submitHandler}
           fullWidth
         >
@@ -101,7 +109,8 @@ const Login = () => {
         </Typography>
         <br />
         <Typography variant="body2" align="center">
-          Need to verify your email? <Link to="/resend-verification">Resend verification email</Link>
+          Need to verify your email?{" "}
+          <Link to="/resend-verification">Resend verification email</Link>
         </Typography>
       </Paper>
     </div>

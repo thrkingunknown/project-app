@@ -4,8 +4,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,3 +11,39 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light mode styles */
+[data-mui-color-scheme="light"] {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+/* Dark mode styles */
+[data-mui-color-scheme="dark"] {
+  color: #ffffff;
+  background-color: #121212;
+}
+
+/* Ensure smooth transitions */
+* {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Custom scrollbar for dark mode */
+[data-mui-color-scheme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+}
+
+[data-mui-color-scheme="dark"] ::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+[data-mui-color-scheme="dark"] ::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+[data-mui-color-scheme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

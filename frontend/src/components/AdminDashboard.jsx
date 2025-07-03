@@ -22,19 +22,19 @@ const AdminDashboard = () => {
   var [users, setUsers] = useState([]);
   var [posts, setPosts] = useState([]);
   var [tabValue, setTabValue] = useState(0);
-  var currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-  var token = localStorage.getItem('token');
+  var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  var token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (currentUser.role !== 'admin') {
-      alert('Admin access required');
-      navigate('/');
+    if (currentUser.role !== "admin") {
+      alert("Admin access required");
+      navigate("/");
       return;
     }
 
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log("users", res.data);
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
 
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log(res);
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
   var handleDeletePost = (postId) => {
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         console.log(res);
@@ -98,12 +98,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <Container maxWidth="lg" style={{ marginTop: '20px' }}>
+    <Container maxWidth="lg" style={{ marginTop: "20px" }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Admin Dashboard
       </Typography>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="Users Management" />
           <Tab label="Posts Management" />
@@ -111,7 +111,7 @@ const AdminDashboard = () => {
       </Box>
 
       {tabValue === 0 && (
-        <Paper style={{ padding: '20px', marginTop: '20px' }}>
+        <Paper style={{ padding: "20px", marginTop: "20px" }}>
           <Typography variant="h5" gutterBottom>
             Users Management
           </Typography>
@@ -132,7 +132,9 @@ const AdminDashboard = () => {
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="outlined"
@@ -163,7 +165,7 @@ const AdminDashboard = () => {
       )}
 
       {tabValue === 1 && (
-        <Paper style={{ padding: '20px', marginTop: '20px' }}>
+        <Paper style={{ padding: "20px", marginTop: "20px" }}>
           <Typography variant="h5" gutterBottom>
             Posts Management
           </Typography>
@@ -182,8 +184,10 @@ const AdminDashboard = () => {
                 {posts.map((post) => (
                   <TableRow key={post._id}>
                     <TableCell>{post.title}</TableCell>
-                    <TableCell>{post.author?.username || 'Unknown'}</TableCell>
-                    <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{post.author?.username || "Unknown"}</TableCell>
+                    <TableCell>
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>{post.comments?.length || 0}</TableCell>
                     <TableCell>
                       <Button
