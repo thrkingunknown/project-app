@@ -13,6 +13,10 @@ var commentSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  isEditted: {
+    type: Boolean,
+    default: false
   }
 });
 

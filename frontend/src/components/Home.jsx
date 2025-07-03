@@ -74,7 +74,7 @@ const Home = () => {
         variant="h4"
         component="h1"
         gutterBottom
-        color="primary"
+        color="secondary"
         className="flex justify-center"
       >
         Welcome To FAXRN

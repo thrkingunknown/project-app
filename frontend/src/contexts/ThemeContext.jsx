@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { ThemeContext } from "./ThemeContextDefinition";
+import { cyan } from "@mui/material/colors";
 
 export const CustomThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -21,32 +22,32 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "light",
       primary: {
-        main: "#1976d2",
+        main: cyan['A400'],
       },
       secondary: {
-        main: "#dc004e",
+        main: cyan['A700'],
       },
       background: {
-        default: "#ffffff",
-        paper: "#f5f5f5",
+        default: "hsl(174, 50%, 95%)",
+        paper: "hsl(174, 50%, 98%)",
       },
       text: {
-        primary: "#000000",
-        secondary: "#666666",
+        primary: "hsl(175, 79.90%, 33.10%)",
+        secondary: "hsl(174, 30%, 30%)",
       },
     },
     components: {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: "#1976d2",
+            backgroundColor: "hsl(175, 71.60%, 30.40%)",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: "#ffffff",
+            backgroundColor: "hsl(174, 50%, 98%)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
           },
         },
@@ -58,48 +59,48 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "dark",
       primary: {
-        main: "#90caf9",
+        main: cyan['A100'],
       },
       secondary: {
-        main: "#f48fb1",
+        main: cyan['A200'],
       },
       background: {
-        default: "#121212",
-        paper: "#1e1e1e",
+        default: "hsl(174, 50%, 5%)",
+        paper: "hsl(174, 50%, 8%)",
       },
       text: {
-        primary: "#ffffff",
-        secondary: "#b0b0b0",
+        primary: "hsl(174, 50%, 90%)",
+        secondary: "hsl(174, 30%, 70%)",
       },
     },
     components: {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: "#1e1e1e",
+            backgroundColor: "hsl(174, 50%, 8%)",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: "#2d2d2d",
+            backgroundColor: "hsl(174, 50%, 8%)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
           },
         },
       },
-      MuiButton: {
-        styleOverrides: {
-          outlined: {
-            borderColor: "#90caf9",
-            color: "#90caf9",
-            "&:hover": {
-              borderColor: "#64b5f6",
-              backgroundColor: "rgba(144, 202, 249, 0.04)",
-            },
-          },
-        },
-      },
+      // MuiButton: {
+      //   styleOverrides: {
+      //     outlined: {
+      //       borderColor: "hsl(182, 80.40%, 80.00%)",
+      //       color: "hsl(190, 80.40%, 80.00%)",
+      //       "&:hover": {
+      //         borderColor: "hsl(166, 80.40%, 70.00%)",
+      //         backgroundColor: "hsla(234, 80%, 80%, 0.04)",
+      //       },
+      //     },
+      //   },
+      // },
     },
   });
 
