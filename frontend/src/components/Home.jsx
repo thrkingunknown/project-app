@@ -10,6 +10,8 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import CommentIcon from "@mui/icons-material/Comment";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 
 const Home = () => {
   var [posts, setPosts] = useState([]);
@@ -149,7 +151,7 @@ const Home = () => {
                   {post.content.substring(0, 1000)}...
                 </Typography>
                 <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                  💬 {post.comments?.length || 0} | 👍 {post.likes || 0}
+                  <CommentIcon /> {post.comments?.length || 0} | <ThumbUpOffAltIcon /> {post.likes || 0}
                 </Typography>
                 <div style={{ marginTop: 'auto' }}>
                   <Button
