@@ -9,7 +9,6 @@ const CreatePost = () => {
   var [data, setData] = useState({ title: "", content: "" });
 
   useEffect(() => {
-    // check if user is logged in
     var token = localStorage.getItem('token');
     if (!token) {
       alert('Please login first');

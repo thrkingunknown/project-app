@@ -6,7 +6,7 @@ import axios from "axios";
 const EmailVerification = () => {
   var [searchParams] = useSearchParams();
   var navigate = useNavigate();
-  var [status, setStatus] = useState('verifying'); // verifying, success, error
+  var [status, setStatus] = useState('verifying');
   var [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -18,7 +18,6 @@ const EmailVerification = () => {
       return;
     }
 
-    // verify email with backend
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/verify-email?token=${token}`)
       .then((response) => {

@@ -26,7 +26,7 @@ const Register = () => {
         console.log("Registration successful:", response.data);
         setMessage(response.data);
         setIsError(false);
-        // Don't navigate immediately, let user see the message
+        // wait 3 seconds then redirect
         setTimeout(() => {
           navigate("/login");
         }, 3000);

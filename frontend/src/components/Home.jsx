@@ -12,7 +12,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CommentIcon from "@mui/icons-material/Comment";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
-import ThemeProvider from "@mui/material";
+
 
 
 const Home = () => {
@@ -27,7 +27,6 @@ const Home = () => {
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
         console.log(res);
-        // Ensure we always set an array
         if (Array.isArray(res.data)) {
           setPosts(res.data);
         } else {
@@ -37,7 +36,7 @@ const Home = () => {
       })
       .catch((err) => {
         console.error('Error fetching posts:', err);
-        setPosts([]); // Set empty array on error
+        setPosts([]);
       })
       .finally(() => {
         setLoading(false);

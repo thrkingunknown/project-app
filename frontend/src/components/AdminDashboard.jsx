@@ -26,14 +26,12 @@ const AdminDashboard = () => {
   var token = localStorage.getItem('token');
 
   useEffect(() => {
-    // check if user is admin
     if (currentUser.role !== 'admin') {
       alert('Admin access required');
       navigate('/');
       return;
     }
 
-    // get users
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -47,7 +45,6 @@ const AdminDashboard = () => {
         alert("Error loading users");
       });
 
-    // get posts
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
@@ -113,7 +110,6 @@ const AdminDashboard = () => {
         </Tabs>
       </Box>
 
-      {/* Users Tab */}
       {tabValue === 0 && (
         <Paper style={{ padding: '20px', marginTop: '20px' }}>
           <Typography variant="h5" gutterBottom>
@@ -166,7 +162,6 @@ const AdminDashboard = () => {
         </Paper>
       )}
 
-      {/* Posts Tab */}
       {tabValue === 1 && (
         <Paper style={{ padding: '20px', marginTop: '20px' }}>
           <Typography variant="h5" gutterBottom>

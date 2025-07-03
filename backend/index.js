@@ -16,7 +16,6 @@ var port = 3000;
 
 var app = express();
 
-// email transporter setup
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -25,7 +24,6 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-// middleware
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -34,7 +32,6 @@ app.use(cors({
     credentials: true
 }));
 
-// email verification helper function
 var sendVerificationEmail = async (email, token, username) => {
     var verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
     var mailOptions = {
@@ -64,7 +61,6 @@ var sendVerificationEmail = async (email, token, username) => {
     }
 };
 
-// health check endpoint
 app.get('/', (req, res) => {
     res.json({
         message: 'FAXRN Backend API is running!',
@@ -81,7 +77,6 @@ app.get('/health', (req, res) => {
     });
 });
 
-// auth middleware
 var checkAuth = (req, res, next) => {
     try {
         var token = req.headers.authorization?.split(' ')[1];
@@ -96,12 +91,10 @@ var checkAuth = (req, res, next) => {
     }
 };
 
-// auth routes
 app.post('/register', async (req, res) => {
     try {
         var { username, email, password, role } = req.body;
 
-        // check if user already exists
         var existingUser = await User.findOne({ email: email });
         if (existingUser) {
             return res.send('User with this email already exists');
@@ -109,9 +102,9 @@ app.post('/register', async (req, res) => {
 
         var hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_ROUNDS) || 10);
 
-        // generate verification token
+
         var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         var user = new User({
             username: username,
@@ -125,7 +118,6 @@ app.post('/register', async (req, res) => {
 
         await user.save();
 
-        // send verification email
         await sendVerificationEmail(email, verificationToken, username);
 
         res.send('User registered successfully! Please check your email to verify your account.');
@@ -148,7 +140,6 @@ app.post('/login', async (req, res) => {
             return res.send('Invalid password');
         }
 
-        // check if email is verified
         if (!user.isVerified) {
             return res.send('Please verify your email before logging in. Check your inbox for verification link.');
         }
@@ -175,7 +166,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// email verification endpoint
 app.get('/verify-email', async (req, res) => {
     try {
         var { token } = req.query;
@@ -193,7 +183,6 @@ app.get('/verify-email', async (req, res) => {
             return res.send('Invalid or expired verification token');
         }
 
-        // update user as verified
         user.isVerified = true;
         user.verificationToken = undefined;
         user.verificationTokenExpires = undefined;
@@ -206,7 +195,6 @@ app.get('/verify-email', async (req, res) => {
     }
 });
 
-// resend verification email endpoint
 app.post('/resend-verification', async (req, res) => {
     try {
         var { email } = req.body;
@@ -220,15 +208,13 @@ app.post('/resend-verification', async (req, res) => {
             return res.send('Email is already verified');
         }
 
-        // generate new verification token
         var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         user.verificationToken = verificationToken;
         user.verificationTokenExpires = verificationTokenExpires;
         await user.save();
 
-        // send verification email
         await sendVerificationEmail(email, verificationToken, user.username);
 
         res.send('Verification email sent! Please check your inbox.');
@@ -238,7 +224,6 @@ app.post('/resend-verification', async (req, res) => {
     }
 });
 
-// post routes
 app.get('/posts', async (req, res) => {
     try {
         var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
@@ -303,7 +288,6 @@ app.delete('/posts/:id', checkAuth, async (req, res) => {
     }
 });
 
-// comment routes
 app.post('/posts/:id/comments', checkAuth, async (req, res) => {
     try {
         var comment = new Comment({
@@ -312,12 +296,11 @@ app.post('/posts/:id/comments', checkAuth, async (req, res) => {
             post: req.params.id
         });
         await comment.save();
-        
-        // add comment to post
+
         await Post.findByIdAndUpdate(req.params.id, {
             $push: { comments: comment._id }
         });
-        
+
         res.send('Comment added successfully');
     } catch (error) {
         res.send('Error adding comment: ' + error);
@@ -336,8 +319,6 @@ app.delete('/comments/:id', checkAuth, async (req, res) => {
         res.send('Error deleting comment: ' + error);
     }
 });
-
-// user routes
 app.get('/users', checkAuth, async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
@@ -371,13 +352,48 @@ app.delete('/users/:id', checkAuth, async (req, res) => {
         res.send('Error deleting user: ' + error);
     }
 });
+app.post("/posts/:id/like", checkAuth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
 
-// For local development
+    const userIndex = post.likedBy.indexOf(req.user.id);
+
+    if (userIndex > -1) {
+      //unlike
+      post.likes--;
+      post.likedBy.splice(userIndex, 1);
+      await post.save();
+      res.json({
+        message: 'Post unliked successfully',
+        likes: post.likes,
+        likedBy: post.likedBy,
+        action: 'unliked'
+      });
+    } else {
+    //  like
+      post.likes++;
+      post.likedBy.push(req.user.id);
+      await post.save();
+      res.json({
+        message: 'Post liked successfully',
+        likes: post.likes,
+        likedBy: post.likedBy,
+        action: 'liked'
+      });
+    }
+  } catch (error) {
+    console.error('Error liking/unliking post:', error);
+    res.status(500).json({ error: 'Error processing like: ' + error.message });
+  }
+});
+
+// local dev only
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`${process.env.PLATFORM_NAME} Server is running on http://localhost:${port}`);
   });
 }
-
-// Export for Vercel
 module.exports = app;
