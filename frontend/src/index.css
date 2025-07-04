@@ -11,26 +11,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Light mode styles */
 [data-mui-color-scheme="light"] {
   color: #000000;
   background-color: #ffffff;
 }
 
-/* Dark mode styles */
 [data-mui-color-scheme="dark"] {
   color: #ffffff;
   background-color: #121212;
 }
 
-/* Ensure smooth transitions */
 * {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
 }
 
-/* Custom scrollbar for dark mode */
 [data-mui-color-scheme="dark"] ::-webkit-scrollbar {
   width: 8px;
 }
