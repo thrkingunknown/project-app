@@ -22,10 +22,10 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "light",
       primary: {
-        main: cyan['A400'],
+        main: cyan["A400"],
       },
       secondary: {
-        main: cyan['A700'],
+        main: cyan["A700"],
       },
       background: {
         default: "hsl(174, 50%, 95%)",
@@ -59,10 +59,10 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "dark",
       primary: {
-        main: cyan['A100'],
+        main: cyan["A100"],
       },
       secondary: {
-        main: cyan['A200'],
+        main: cyan["A200"],
       },
       background: {
         default: "hsl(174, 50%, 5%)",
@@ -85,22 +85,10 @@ export const CustomThemeProvider = ({ children }) => {
         styleOverrides: {
           root: {
             backgroundColor: "hsl(174, 50%, 8%)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            boxShadow: "2px 2px 8px hsl(0, 0.00%, 0.00%)",
           },
         },
       },
-      // MuiButton: {
-      //   styleOverrides: {
-      //     outlined: {
-      //       borderColor: "hsl(182, 80.40%, 80.00%)",
-      //       color: "hsl(190, 80.40%, 80.00%)",
-      //       "&:hover": {
-      //         borderColor: "hsl(166, 80.40%, 70.00%)",
-      //         backgroundColor: "hsla(234, 80%, 80%, 0.04)",
-      //       },
-      //     },
-      //   },
-      // },
     },
   });
 

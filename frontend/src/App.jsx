@@ -15,60 +15,60 @@ import { Routes, Route } from "react-router-dom";
 function App() {
   return (
     <>
-      <Navbar data-oid="b:1jqy5" />
-      <Routes data-oid="y:ba21x">
+      <Navbar data-oid="wfu5asr" />
+      <Routes data-oid="cqsnbin">
         <Route
           path="/"
-          element={<Home data-oid="rf6hfs5" />}
-          data-oid="-w1yadc"
+          element={<Home data-oid="h36e:1k" />}
+          data-oid="tso544z"
         />
 
         <Route
           path="/login"
-          element={<Login data-oid="1ee-h1_" />}
-          data-oid="utqijr8"
+          element={<Login data-oid="c5qmx59" />}
+          data-oid="h5lxtu7"
         />
 
         <Route
           path="/register"
-          element={<Register data-oid="a8h2gie" />}
-          data-oid="an21kf8"
+          element={<Register data-oid="5fgynno" />}
+          data-oid="8k108zy"
         />
 
         <Route
           path="/create-post"
-          element={<CreatePost data-oid="o9ytdhu" />}
-          data-oid="yyyx_98"
+          element={<CreatePost data-oid="5c:fyle" />}
+          data-oid="9.2e-m-"
         />
 
         <Route
           path="/post/:id"
-          element={<PostView data-oid="urqmmep" />}
-          data-oid="z043hv5"
+          element={<PostView data-oid="5uqtbqj" />}
+          data-oid="e1x32oh"
         />
 
         <Route
           path="/profile/:id"
-          element={<Profile data-oid="qfxclcu" />}
-          data-oid="254gfg4"
+          element={<Profile data-oid="xrdl9ck" />}
+          data-oid="xn4dec6"
         />
 
         <Route
           path="/admin"
-          element={<AdminDashboard data-oid="srxc11g" />}
-          data-oid="nnqbn_g"
+          element={<AdminDashboard data-oid=":5pjzdp" />}
+          data-oid="3_74udv"
         />
 
         <Route
           path="/verify-email"
-          element={<EmailVerification data-oid="g01f_.f" />}
-          data-oid="1yxn2d1"
+          element={<EmailVerification data-oid="cy9td2t" />}
+          data-oid="ax.fhp1"
         />
 
         <Route
           path="/resend-verification"
-          element={<ResendVerification data-oid="fa-fimf" />}
-          data-oid="1x.sa6-"
+          element={<ResendVerification data-oid="g7dfw8u" />}
+          data-oid="xz2uset"
         />
       </Routes>
     </>

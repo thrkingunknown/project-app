@@ -69,14 +69,6 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        database: 'Connected'
-    });
-});
-
 var checkAuth = (req, res, next) => {
     try {
         var token = req.headers.authorization?.split(' ')[1];
@@ -239,6 +231,7 @@ app.post('/posts', checkAuth, async (req, res) => {
         var post = new Post({
             title: req.body.title,
             content: req.body.content,
+            image: req.body.image,
             author: req.user.id
         });
         await post.save();
@@ -319,6 +312,19 @@ app.delete('/comments/:id', checkAuth, async (req, res) => {
         res.send('Error deleting comment: ' + error);
     }
 });
+
+app.put('/comments/:id', checkAuth, async (req, res) => {
+    try {
+        var comment = await Comment.findById(req.params.id);
+        if (comment.author.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.send('Not authorized');
+        }
+        await Comment.findByIdAndUpdate(req.params.id, req.body);
+        res.send('Comment updated successfully');
+    } catch (error) {
+        res.send('Error updating comment: ' + error);
+    }
+})
 app.get('/users', checkAuth, async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
