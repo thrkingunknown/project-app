@@ -1,12 +1,43 @@
 import React from "react";
-import { Button, TextField, Typography, Paper, Container } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Container,
+  styled,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-const CreatePost = () => {
+const CreatePost = (props) => {
   var navigate = useNavigate();
-  var [data, setData] = useState({ title: "", content: "" });
+  var location = useLocation();
+  var [data, setData] = useState({ title: "", content: "", image: "" });
+  useEffect(() => {
+    if (location.state !== null) {
+      setData({
+        ...data,
+        title: location.state.title,
+        content: location.state.content,
+        image: location.state.image,
+      });
+    }
+  }, []);
+
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
 
   useEffect(() => {
     var token = localStorage.getItem("token");
@@ -27,7 +58,21 @@ const CreatePost = () => {
       alert("Please login first");
       return;
     }
-
+     if (location.state !== null) {
+       axios
+         .put(`${import.meta.env.VITE_BACKEND_URL}/posts/${location.state._id}`, data, {
+           headers: { Authorization: `Bearer ${token}` },
+         })
+         .then((res) => {
+           console.log(res);
+           alert(res.data);
+           navigate("/");
+         })
+         .catch((err) => {
+           console.log(err);
+           alert("Error updating post");
+       })
+     } else {
     console.log("creating post", data);
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/posts`, data, {
@@ -43,6 +88,7 @@ const CreatePost = () => {
         alert("Error creating post");
       });
   };
+}
 
   return (
     <Container maxWidth="md" style={{ marginTop: "50px" }}>
@@ -75,6 +121,21 @@ const CreatePost = () => {
         />
         <br />
         <br />
+        <Button
+          component="label"
+          role={undefined}
+          variant="contained"
+          tabIndex={-1}
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload files
+          <VisuallyHiddenInput
+            type="file"
+            onChange={(event) => console.log(event.target.files)}
+            multiple
+          />
+        </Button>
+        &nbsp;&nbsp;
         <Button
           variant="contained"
           color="primary"

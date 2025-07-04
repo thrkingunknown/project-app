@@ -2,6 +2,10 @@ var mongoose = require('mongoose');
 
 var commentSchema = mongoose.Schema({
   content: String,
+  img: {
+    data: Buffer,
+    contentType: String
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -13,10 +17,6 @@ var commentSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  isEditted: {
-    type: Boolean,
-    default: false
   }
 });
 

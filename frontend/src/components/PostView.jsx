@@ -17,10 +17,13 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 const PostView = () => {
   var { id } = useParams();
   var navigate = useNavigate();
-  var [post, setPost] = useState(null);
+  var [post, setPost] = useState();
+  var [commEdit, setCommEdit] = useState(false);
+  var [editingCommentId, setEditingCommentId] = useState(null);
   var [comment, setComment] = useState("");
   var user = JSON.parse(localStorage.getItem("user") || "{}");
   var token = localStorage.getItem("token");
+
 
   useEffect(() => {
     axios
@@ -34,6 +37,27 @@ const PostView = () => {
         alert("Error loading post");
       });
   }, [id]);
+
+  var handleDeletePost = () => {
+    axios
+      .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log(res);
+        alert(res.data);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("Error deleting post");
+      });
+  };
+
+  var handlePostEdit = (postData) => {
+    console.log(postData);
+    navigate(`/create-post`, { state: postData });
+  };
 
   var likehandler = () => {
     if (!token) {
@@ -65,6 +89,15 @@ const PostView = () => {
         }
       });
   };
+
+  var handleCommentEdit = (commentData) => {
+    console.log(commentData);
+    setComment(commentData.content);
+    setCommEdit(true);
+    setEditingCommentId(commentData._id);
+  };
+
+
   var handleCommentSubmit = () => {
     if (!token) {
       alert("Please login to comment");
@@ -76,24 +109,44 @@ const PostView = () => {
       return;
     }
 
-    axios
-      .post(
-        `${import.meta.env.VITE_BACKEND_URL}/posts/${id}/comments`,
-        { content: comment },
-        { headers: { Authorization: `Bearer ${token}` } },
-      )
-      .then((res) => {
-        console.log(res);
-        alert(res.data);
-        setComment("");
-        window.location.reload();
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Error adding comment");
-      });
+    if (commEdit === false) {
+      axios
+        .post(
+          `${import.meta.env.VITE_BACKEND_URL}/posts/${id}/comments`,
+          { content: comment },
+          { headers: { Authorization: `Bearer ${token}` } },
+        )
+        .then((res) => {
+          console.log(res);
+          alert(res.data);
+          setComment("");
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error adding comment");
+        });
+    } else {
+      axios
+        .put(
+          `${import.meta.env.VITE_BACKEND_URL}/comments/${editingCommentId}`,
+          { content: comment },
+          { headers: { Authorization: `Bearer ${token}` } },
+        )
+        .then((res) => {
+          console.log(res);
+          alert(res.data);
+          setComment("");
+          setCommEdit(false);
+          setEditingCommentId(null);
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error updating comment");
+        });
+    }
   };
-
   var handleDeleteComment = (commentId) => {
     if (!token) {
       alert("Please login first");
@@ -163,6 +216,36 @@ const PostView = () => {
           {post.likedBy?.includes(user.id) ? "Liked" : "Like"}:{" "}
           {post.likes || 0}
         </Button>
+        &nbsp;&nbsp;
+        {(user.id === post.author?._id || user.role === "admin") && (
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => {
+              if (
+                window.confirm("Are you sure you want to delete this post?")
+              ) {
+                handleDeletePost();
+              }
+            }}
+          >
+            Delete
+          </Button>
+        )}
+        &nbsp;&nbsp;
+        {(user.role === "admin" || user.id === post.author?._id) && (
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => {
+              handlePostEdit(post);
+
+            }}
+
+          >
+            Edit
+          </Button>
+        )}
       </Paper>
 
       <br />
@@ -179,7 +262,7 @@ const PostView = () => {
         {token && (
           <>
             <TextField
-              label="Add a comment"
+              label={commEdit ? "Edit comment" : "Add a comment"}
               variant="outlined"
               fullWidth
               multiline
@@ -198,7 +281,7 @@ const PostView = () => {
               onClick={handleCommentSubmit}
               className="combined sh"
             >
-              Add Comment
+              Comment
             </Button>
             <br />
             <br />
@@ -231,6 +314,15 @@ const PostView = () => {
                       onClick={() => handleDeleteComment(comm._id)}
                     >
                       Delete
+                    </Button>
+                    &nbsp;&nbsp;
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      size="small"
+                      onClick={() => handleCommentEdit(comm)}
+                    >
+                      Edit
                     </Button>
                   </>
                 )}

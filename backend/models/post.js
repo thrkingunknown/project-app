@@ -3,6 +3,10 @@ var mongoose = require('mongoose');
 var postSchema = mongoose.Schema({
   title: String,
   content: String,
+  img: {
+    data: Buffer,
+    contentType: String
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -14,10 +18,6 @@ var postSchema = mongoose.Schema({
   likes: {
     type: Number,
     default: 0
-  },
-  isEdited: {
-    type: Boolean,
-    default: false
   },
   likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
