@@ -1,18 +1,102 @@
 #root {
   max-width: 1800px;
   margin: 0 auto;
-  padding: 1rem;
-  padding-bottom: 1rem;
+  padding: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
   text-align: center;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  transition: background-color 0.3s ease;
+  background-color: var(--color-background);
+  transition: all var(--transition-normal);
 }
 
+/* Dark mode specific styling for root */
+[data-mui-color-scheme="dark"] #root {
+  background-color: #1C1C1E !important;
+}
 
 body {
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: all var(--transition-normal);
+  overflow-x: hidden;
+}
+
+/* Dark mode specific styling for body */
+[data-mui-color-scheme="dark"] body {
+  background-color: #1C1C1E !important;
+  color: #FFFFFF !important;
+}
+
+/* Utility classes for animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading animation */
+.loading-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-mui-color-scheme="dark"] .glass {
+  background: rgba(28, 28, 30, 0.8);
+  border: 1px solid rgba(58, 58, 60, 0.6);
 }

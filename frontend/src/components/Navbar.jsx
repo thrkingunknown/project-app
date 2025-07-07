@@ -91,10 +91,48 @@ const Navbar = () => {
   const pages = token ? authenticatedPages : publicPages;
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl" className="opacity-[80%] rounded-[25px]">
-        <Toolbar disableGutters>
-          <ForumIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+    <AppBar
+      position="static"
+      elevation={0}
+      sx={{
+        background: 'transparent',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          zIndex: -1,
+        }
+      }}
+      className="glass"
+    >
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: { xs: 64, sm: 70 },
+            py: 1
+          }}
+        >
+          <ForumIcon
+            sx={{
+              display: { xs: "none", md: "flex" },
+              mr: 1.5,
+              fontSize: 28,
+              color: 'primary.main',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.1)',
+                filter: 'drop-shadow(0 2px 8px rgba(0, 122, 255, 0.3))'
+              }
+            }}
+          />
 
           <Typography
             variant="h6"
@@ -104,11 +142,17 @@ const Navbar = () => {
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
               fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
+              fontSize: '1.5rem',
+              letterSpacing: ".2rem",
+              color: "text.primary",
               textDecoration: "none",
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                color: 'primary.main',
+                transform: 'translateY(-1px)',
+              }
             }}
           >
             FAXRN
@@ -121,9 +165,16 @@ const Navbar = () => {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="inherit"
+              sx={{
+                color: 'text.primary',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  transform: 'scale(1.05)'
+                }
+              }}
             >
-              <MenuIcon />
+              <MenuIcon sx={{ color: 'inherit' }} />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -139,14 +190,37 @@ const Navbar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{ display: { xs: "block", md: "none" } }}
+              sx={{
+                display: { xs: "block", md: "none" },
+                '& .MuiPaper-root': {
+                  borderRadius: 2,
+                  mt: 1,
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }
+              }}
             >
               {pages.map((page) => (
                 <MenuItem
                   key={page.name}
                   onClick={() => handleMenuItemClick(page.path)}
+                  sx={{
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      transform: 'translateX(4px)',
+                    }
+                  }}
                 >
-                  <Typography sx={{ textAlign: "center" }}>
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      fontWeight: 500,
+                      color: 'text.primary'
+                    }}
+                  >
                     {page.name}
                   </Typography>
                 </MenuItem>
@@ -154,7 +228,15 @@ const Navbar = () => {
             </Menu>
           </Box>
 
-          <ForumIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <ForumIcon
+            sx={{
+              display: { xs: "flex", md: "none" },
+              mr: 1,
+              fontSize: 24,
+              color: 'primary.main',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          />
 
           <Typography
             variant="h5"
@@ -165,19 +247,28 @@ const Navbar = () => {
               mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
               fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
+              fontSize: '1.25rem',
+              letterSpacing: ".2rem",
+              color: "text.primary",
               textDecoration: "none",
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                color: 'primary.main',
+              }
             }}
           >
             FAXRN
           </Typography>
 
           <Box
-            sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}
-            className="relative top-auto right-auto bottom-auto left-auto"
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              justifyContent: 'center',
+              gap: 1
+            }}
           >
             {pages.map((page) => (
               <Button
@@ -185,14 +276,30 @@ const Navbar = () => {
                 component={Link}
                 to={page.path}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{
+                  my: 1,
+                  px: 3,
+                  py: 1,
+                  color: "text.primary",
+                  display: "block",
+                  borderRadius: 2,
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                    color: 'primary.main',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(0, 122, 255, 0.15)'
+                  }
+                }}
               >
                 {page.name}
               </Button>
             ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
+          <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
             <Tooltip
               title={
                 isDarkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -200,22 +307,46 @@ const Navbar = () => {
             >
               <IconButton
                 onClick={toggleDarkMode}
-                color="inherit"
-                sx={{ mr: 1 }}
+                sx={{
+                  mr: 1,
+                  color: 'text.primary',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                    transform: 'scale(1.05)',
+                    color: 'primary.main'
+                  }
+                }}
               >
-                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                {isDarkMode ? <Brightness7Icon sx={{ color: 'inherit' }} /> : <Brightness4Icon sx={{ color: 'inherit' }} />}
               </IconButton>
             </Tooltip>
             {token ? (
               <>
                 <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <IconButton
+                    onClick={handleOpenUserMenu}
+                    sx={{
+                      p: 0,
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                      }
+                    }}
+                  >
                     <Avatar
                       alt={user.username}
                       sx={{
                         bgcolor: "primary.main",
                         color: "white",
                         fontWeight: "bold",
+                        width: 40,
+                        height: 40,
+                        boxShadow: '0 2px 8px rgba(0, 122, 255, 0.3)',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          boxShadow: '0 4px 12px rgba(0, 122, 255, 0.4)',
+                        }
                       }}
                     >
                       {user.username ? (
@@ -227,7 +358,18 @@ const Navbar = () => {
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ mt: "45px" }}
+                  sx={{
+                    mt: "45px",
+                    '& .MuiPaper-root': {
+                      borderRadius: 2,
+                      mt: 1,
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      minWidth: 180,
+                    }
+                  }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
@@ -246,8 +388,21 @@ const Navbar = () => {
                     <MenuItem
                       key={setting.name}
                       onClick={() => handleUserMenuItemClick(setting.action)}
+                      sx={{
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                          transform: 'translateX(4px)',
+                        }
+                      }}
                     >
-                      <Typography sx={{ textAlign: "center" }}>
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          fontWeight: 500,
+                          color: 'text.primary'
+                        }}
+                      >
                         {setting.name}
                       </Typography>
                     </MenuItem>

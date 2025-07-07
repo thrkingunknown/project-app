@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { ThemeContext } from "./ThemeContextDefinition";
-import { cyan } from "@mui/material/colors";
 
 export const CustomThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -12,6 +11,16 @@ export const CustomThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
+    // Update the data-mui-color-scheme attribute on the html element
+    document.documentElement.setAttribute(
+      'data-mui-color-scheme',
+      isDarkMode ? 'dark' : 'light'
+    );
+    // Also update body for additional styling
+    document.body.setAttribute(
+      'data-mui-color-scheme',
+      isDarkMode ? 'dark' : 'light'
+    );
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
@@ -22,33 +31,73 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "light",
       primary: {
-        main: cyan["A400"],
+        main: "#007AFF", // Accent Color from colour.md
+        light: "#4DA3FF",
+        dark: "#0056CC",
+        contrastText: "#FFFFFF",
       },
       secondary: {
-        main: cyan["A700"],
+        main: "#E5E5EA", // Tertiary Color for secondary elements
+        light: "#F2F2F7",
+        dark: "#D1D1D6",
+        contrastText: "#000000",
       },
       background: {
-        default: "hsl(174, 50%, 95%)",
-        paper: "hsl(174, 50%, 98%)",
+        default: "#FFFFFF", // Main Color
+        paper: "#F5F5F7", // Secondary Color
       },
       text: {
-        primary: "hsl(175, 79.90%, 33.10%)",
-        secondary: "hsl(174, 30%, 30%)",
+        primary: "#000000",
+        secondary: "#6D6D70",
+      },
+      divider: "#E5E5EA", // Tertiary Color for borders and dividers
+      action: {
+        hover: "rgba(0, 122, 255, 0.04)",
+        selected: "rgba(0, 122, 255, 0.08)",
+        disabled: "rgba(60, 60, 67, 0.3)",
+        disabledBackground: "rgba(60, 60, 67, 0.12)",
       },
     },
     components: {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: "hsl(175, 71.60%, 30.40%)",
+            backgroundColor: "#FFFFFF",
+            backdropFilter: "blur(20px)",
+            borderBottom: "1px solid rgba(229, 229, 234, 0.6)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: "hsl(174, 50%, 98%)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            backgroundColor: "#F5F5F7",
+            borderRadius: "12px",
+            border: "1px solid rgba(229, 229, 234, 0.6)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+            },
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: "8px",
+            textTransform: "none",
+            fontWeight: 600,
+            transition: "all 0.2s ease-in-out",
+          },
+          contained: {
+            boxShadow: "0 2px 8px rgba(0, 122, 255, 0.3)",
+            "&:hover": {
+              boxShadow: "0 4px 12px rgba(0, 122, 255, 0.4)",
+              transform: "translateY(-1px)",
+            },
           },
         },
       },
@@ -59,33 +108,73 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "dark",
       primary: {
-        main: cyan["A100"],
+        main: "#0A84FF", // Brighter Blue for dark mode
+        light: "#4DA3FF",
+        dark: "#0056CC",
+        contrastText: "#FFFFFF",
       },
       secondary: {
-        main: cyan["A200"],
+        main: "#3A3A3C", // Gray for secondary elements
+        light: "#48484A",
+        dark: "#2C2C2E",
+        contrastText: "#FFFFFF",
       },
       background: {
-        default: "hsl(174, 50%, 5%)",
-        paper: "hsl(174, 50%, 8%)",
+        default: "#1C1C1E", // Almost Black
+        paper: "#2C2C2E", // Dark Gray
       },
       text: {
-        primary: "hsl(174, 50%, 90%)",
-        secondary: "hsl(174, 30%, 70%)",
+        primary: "#FFFFFF",
+        secondary: "#AEAEB2",
+      },
+      divider: "#3A3A3C", // Gray for borders and dividers
+      action: {
+        hover: "rgba(10, 132, 255, 0.08)",
+        selected: "rgba(10, 132, 255, 0.16)",
+        disabled: "rgba(235, 235, 245, 0.3)",
+        disabledBackground: "rgba(235, 235, 245, 0.12)",
       },
     },
     components: {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: "hsl(174, 50%, 8%)",
+            backgroundColor: "#1C1C1E",
+            backdropFilter: "blur(20px)",
+            borderBottom: "1px solid rgba(58, 58, 60, 0.6)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: "hsl(174, 50%, 8%)",
-            boxShadow: "2px 2px 8px hsl(0, 0.00%, 0.00%)",
+            backgroundColor: "#2C2C2E",
+            borderRadius: "12px",
+            border: "1px solid rgba(58, 58, 60, 0.6)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
+            },
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: "8px",
+            textTransform: "none",
+            fontWeight: 600,
+            transition: "all 0.2s ease-in-out",
+          },
+          contained: {
+            boxShadow: "0 2px 8px rgba(10, 132, 255, 0.3)",
+            "&:hover": {
+              boxShadow: "0 4px 12px rgba(10, 132, 255, 0.4)",
+              transform: "translateY(-1px)",
+            },
           },
         },
       },
