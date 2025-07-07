@@ -41,9 +41,16 @@ async function connectToDatabase() {
 }
 
 // CORS configuration with multiple origins support
-const allowedOrigins = process.env.FRONTEND_URLS 
+const allowedOrigins = process.env.FRONTEND_URLS
     ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
-    : [process.env.FRONTEND_URL || 'https://project-app-omega-two.vercel.app'];
+    : [
+        'https://project-app-omega-two.vercel.app',
+        'https://project-app-3dzn.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ];
+
+console.log('Allowed CORS origins:', allowedOrigins);
 
 // Middleware setup
 app.use(bodyParser.json({
@@ -282,17 +289,20 @@ app.post('/login', async (req, res) => {
 
 // Get Posts
 app.get('/posts', async (req, res) => {
+    console.log('Posts endpoint hit!', req.method, req.url);
     try {
+        console.log('Fetching posts from database...');
         const posts = await Post.find()
             .populate('author', 'username')
             .populate('comments.author', 'username')
             .sort({ createdAt: -1 })
             .limit(50); // Limit for performance
 
+        console.log(`Found ${posts.length} posts`);
         res.json(posts);
     } catch (error) {
         console.error('Error fetching posts:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
 
@@ -387,9 +397,22 @@ app.post('/logout', (req, res) => {
 
 // Vercel serverless function handler
 module.exports = async (req, res) => {
-    // Connect to database on each request (with caching)
-    await connectToDatabase();
+    console.log(`Serverless function called: ${req.method} ${req.url}`);
 
-    // Handle the request with Express app
-    return app(req, res);
+    try {
+        // Connect to database on each request (with caching)
+        await connectToDatabase();
+        console.log('Database connected successfully');
+
+        // Handle the request with Express app
+        return app(req, res);
+    } catch (error) {
+        console.error('Serverless function error:', error);
+        res.status(500).json({
+            error: 'Serverless function error',
+            message: error.message,
+            url: req.url,
+            method: req.method
+        });
+    }
 };
