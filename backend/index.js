@@ -12,24 +12,73 @@ var bcrypt = require('bcrypt');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 
-var port = 3000;
+// Environment variable validation
+function validateEnvironmentVariables() {
+    const required = [
+        'MONGODB_URI',
+        'JWT_SECRET',
+        'EMAIL_USER',
+        'EMAIL_PASSWORD',
+        'FRONTEND_URL'
+    ];
+
+    const missing = required.filter(key => !process.env[key]);
+
+    if (missing.length > 0) {
+        console.error('Missing required environment variables:', missing.join(', '));
+        process.exit(1);
+    }
+}
+
+// Configuration summary function
+function logConfiguration() {
+    console.log('\n=== Server Configuration ===');
+    console.log(`Platform: ${process.env.PLATFORM_NAME || 'FAXRN'}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Port: ${process.env.PORT || 3000}`);
+    console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'Not configured'}`);
+    console.log(`Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
+    console.log(`Email Service: ${process.env.EMAIL_SERVICE || 'Host/Port configuration'}`);
+    console.log(`JWT Secret: ${process.env.JWT_SECRET ? 'Configured' : 'Not configured'}`);
+    console.log(`CORS Credentials: ${process.env.CORS_CREDENTIALS || 'true'}`);
+    console.log('============================\n');
+}
+
+// Validate environment variables on startup
+validateEnvironmentVariables();
+
+var port = process.env.PORT || 3000;
 
 var app = express();
 
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
+// Email transporter configuration
+var emailConfig = {
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     }
-});
+};
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Use service if specified, otherwise use host/port configuration
+if (process.env.EMAIL_SERVICE) {
+    emailConfig.service = process.env.EMAIL_SERVICE;
+} else {
+    emailConfig.host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+    emailConfig.port = parseInt(process.env.EMAIL_PORT) || 587;
+    emailConfig.secure = process.env.EMAIL_SECURE === 'true';
+}
+
+var transporter = nodemailer.createTransport(emailConfig);
+
+app.use(express.json({ limit: process.env.API_REQUEST_LIMIT || '100mb' }));
+app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: process.env.API_URL_LIMIT || '50mb'
+}));
 app.use(cookieParser());
 app.use(cors({
     origin: process.env.FRONTEND_URL,
-    credentials: true
+    credentials: process.env.CORS_CREDENTIALS === 'true' || true
 }));
 
 var sendVerificationEmail = async (email, token, username) => {
@@ -63,9 +112,38 @@ var sendVerificationEmail = async (email, token, username) => {
 
 app.get('/', (req, res) => {
     res.json({
-        message: 'FAXRN Backend API is running!',
+        message: `${process.env.PLATFORM_NAME || 'FAXRN'} Backend API is running!`,
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        version: process.env.APP_VERSION || '1.0.0'
+    });
+});
+
+// Health check endpoint for Docker
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+// Configuration check endpoint (for debugging - remove in production)
+app.get('/config-check', (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(404).json({ error: 'Not found' });
+    }
+
+    res.json({
+        platform: process.env.PLATFORM_NAME || 'FAXRN',
+        environment: process.env.NODE_ENV || 'development',
+        version: process.env.APP_VERSION || '1.0.0',
+        frontendUrl: process.env.FRONTEND_URL || 'Not configured',
+        emailService: process.env.EMAIL_SERVICE || 'Host/Port configuration',
+        corsCredentials: process.env.CORS_CREDENTIALS || 'true',
+        jwtConfigured: !!process.env.JWT_SECRET,
+        databaseConfigured: !!process.env.MONGODB_URI,
+        emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD)
     });
 });
 
@@ -96,7 +174,8 @@ app.post('/register', async (req, res) => {
 
 
         var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        var verificationTokenExpiresHours = parseInt(process.env.VERIFICATION_TOKEN_EXPIRES_HOURS) || 24;
+        var verificationTokenExpires = new Date(Date.now() + verificationTokenExpiresHours * 60 * 60 * 1000);
 
         var user = new User({
             username: username,
@@ -201,7 +280,8 @@ app.post('/resend-verification', async (req, res) => {
         }
 
         var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        var verificationTokenExpiresHours = parseInt(process.env.VERIFICATION_TOKEN_EXPIRES_HOURS) || 24;
+        var verificationTokenExpires = new Date(Date.now() + verificationTokenExpiresHours * 60 * 60 * 1000);
 
         user.verificationToken = verificationToken;
         user.verificationTokenExpires = verificationTokenExpires;
@@ -396,10 +476,9 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
   }
 });
 
-// local dev only
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`${process.env.PLATFORM_NAME} Server is running on http://localhost:${port}`);
-  });
-}
-module.exports = app;
+// Start the server
+app.listen(port, '0.0.0.0', () => {
+  logConfiguration();
+  console.log(`${process.env.PLATFORM_NAME || 'FAXRN'} Server is running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});

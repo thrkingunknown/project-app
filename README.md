@@ -1,3 +1,3 @@
 # FAXRN Forum Platform
 
-A simple MERN stack forum application with email verification.
+A modern MERN stack forum application with email verification

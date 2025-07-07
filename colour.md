@@ -1,3 +1,4 @@
+
 Light Mode Palette
 Main Color: #FFFFFF (White) - A clean and bright background that enhances readability.
 Secondary Color: #F5F5F7 (Off-white/Light Gray) - Used for secondary backgrounds or to differentiate sections.
