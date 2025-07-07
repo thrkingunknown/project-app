@@ -1,18 +1,21 @@
 {
-  "name": "backend",
+  "name": "faxrn-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "FAXRN Forum Backend API - Optimized for Vercel Serverless",
   "license": "ISC",
   "author": "king",
   "type": "commonjs",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "vercel-build": "echo 'Building for Vercel...'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "acme": "^3.0.3",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
@@ -25,5 +28,13 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "keywords": [
+    "forum",
+    "api",
+    "express",
+    "mongodb",
+    "vercel",
+    "serverless"
+  ]
 }
