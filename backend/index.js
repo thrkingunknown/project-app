@@ -32,11 +32,16 @@ function validateEnvironmentVariables() {
 
 // Configuration summary function
 function logConfiguration() {
+    const allowedOrigins = process.env.FRONTEND_URLS
+        ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+        : [process.env.FRONTEND_URL || 'http://localhost:5173'];
+
     console.log('\n=== Server Configuration ===');
     console.log(`Platform: ${process.env.PLATFORM_NAME || 'FAXRN'}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`Port: ${process.env.PORT || 3000}`);
     console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'Not configured'}`);
+    console.log(`Allowed CORS Origins: ${allowedOrigins.join(', ')}`);
     console.log(`Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
     console.log(`Email Service: ${process.env.EMAIL_SERVICE || 'Host/Port configuration'}`);
     console.log(`JWT Secret: ${process.env.JWT_SECRET ? 'Configured' : 'Not configured'}`);
@@ -76,9 +81,28 @@ app.use(bodyParser.urlencoded({
     limit: process.env.API_URL_LIMIT || '50mb'
 }));
 app.use(cookieParser());
+// CORS configuration with multiple origins support
+const allowedOrigins = process.env.FRONTEND_URLS
+    ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+    : [process.env.FRONTEND_URL || 'http://localhost:5173'];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: process.env.CORS_CREDENTIALS === 'true' || true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS blocked origin: ${origin}`);
+            console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: process.env.CORS_CREDENTIALS === 'true' || true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
 }));
 
 var sendVerificationEmail = async (email, token, username) => {
@@ -134,11 +158,16 @@ app.get('/config-check', (req, res) => {
         return res.status(404).json({ error: 'Not found' });
     }
 
+    const allowedOrigins = process.env.FRONTEND_URLS
+        ? process.env.FRONTEND_URLS.split(',').map(url => url.trim())
+        : [process.env.FRONTEND_URL || 'http://localhost:5173'];
+
     res.json({
         platform: process.env.PLATFORM_NAME || 'FAXRN',
         environment: process.env.NODE_ENV || 'development',
         version: process.env.APP_VERSION || '1.0.0',
         frontendUrl: process.env.FRONTEND_URL || 'Not configured',
+        allowedCorsOrigins: allowedOrigins,
         emailService: process.env.EMAIL_SERVICE || 'Host/Port configuration',
         corsCredentials: process.env.CORS_CREDENTIALS || 'true',
         jwtConfigured: !!process.env.JWT_SECRET,
