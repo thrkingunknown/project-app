@@ -1,28 +1,14 @@
 {
   "version": 2,
   "name": "faxrn-backend",
-  "builds": [
+  "rewrites": [
     {
-      "src": "index.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxLambdaSize": "50mb",
-        "includeFiles": "**"
-      }
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
   "functions": {
-    "index.js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
