@@ -105,6 +105,8 @@ app.use(cors({
     optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
 }));
 
+
+
 var sendVerificationEmail = async (email, token, username) => {
     var verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
     var mailOptions = {
