@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api"
+      "destination": "/api/simple"
     }
   ],
   "functions": {
-    "api/index.js": {
+    "api/simple.js": {
       "maxDuration": 30
     }
   },

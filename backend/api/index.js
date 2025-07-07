@@ -388,5 +388,11 @@ app.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
 
-// Export the Express app for Vercel
-module.exports = app;
+// Vercel serverless function handler
+module.exports = async (req, res) => {
+    // Connect to database on each request (with caching)
+    await connectToDatabase();
+
+    // Handle the request with Express app
+    return app(req, res);
+};
