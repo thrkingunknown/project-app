@@ -1,7 +1,6 @@
 require('dotenv').config();
 var mongoose = require("mongoose");
 
-// simple connection
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {

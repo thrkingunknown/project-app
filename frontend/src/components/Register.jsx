@@ -11,24 +11,47 @@ import {
   IconButton,
   Fade,
   Grow,
+
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import EditIcon from "@mui/icons-material/Edit";
 
 const Register = () => {
   var navigate = useNavigate();
+  var location = useLocation();
   var [data, setData] = useState({ username: "", email: "", password: "" });
   var [message, setMessage] = useState("");
   var [isError, setIsError] = useState(false);
   var [showPassword, setShowPassword] = useState(false);
   var [isLoading, setIsLoading] = useState(false);
+
+
+  var isEditMode = location.pathname.includes('/edit-profile');
+
+  useEffect(() => {
+    if (isEditMode) {
+      var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      if (currentUser.username && currentUser.email) {
+        setData({
+          username: currentUser.username,
+          email: currentUser.email,
+          password: ""
+        });
+      } else {
+        navigate("/login");
+      }
+    }
+
+
+  }, [isEditMode, navigate, location]);
 
   var inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -36,30 +59,72 @@ const Register = () => {
   };
 
   var submitHandler = () => {
-    console.log("register data", data);
+    console.log(isEditMode ? "update profile data" : "register data", data);
     setMessage("");
     setIsError(false);
     setIsLoading(true);
 
-    axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/register`, data)
-      .then((response) => {
-        console.log("Registration successful:", response.data);
-        setMessage(response.data);
-        setIsError(false);
-        // wait 3 seconds then redirect
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error("Error registering:", error);
-        setMessage("Error registering user");
+    if (isEditMode) {
+      var token = localStorage.getItem("token");
+      if (!token) {
+        setMessage("Please login first");
         setIsError(true);
-      })
-      .finally(() => {
         setIsLoading(false);
-      });
+        return;
+      }
+
+      var updateData = { username: data.username };
+      if (data.password.trim()) {
+        updateData.password = data.password;
+      }
+
+      axios
+        .put(`${import.meta.env.VITE_BACKEND_URL}/profile`, updateData, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then((response) => {
+          console.log("Profile updated successfully:", response.data);
+          setMessage("Profile updated successfully!");
+          setIsError(false);
+
+          var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+          currentUser.username = data.username;
+          localStorage.setItem("user", JSON.stringify(currentUser));
+
+          setData({ ...data, password: "" });
+
+          setTimeout(() => {
+            navigate("/profile/" + currentUser.id);
+          }, 2000);
+        })
+        .catch((error) => {
+          console.error("Error updating profile:", error);
+          setMessage(error.response?.data?.message || "Error updating profile");
+          setIsError(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      axios
+        .post(`${import.meta.env.VITE_BACKEND_URL}/register`, data)
+        .then((response) => {
+          console.log("Registration successful:", response.data);
+          setMessage(response.data);
+          setIsError(false);
+          setTimeout(() => {
+            navigate("/login");
+          }, 3000);
+        })
+        .catch((error) => {
+          console.error("Error registering:", error);
+          setMessage("Error registering user");
+          setIsError(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   return (
@@ -81,14 +146,25 @@ const Register = () => {
               }}
             >
               <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <PersonAddIcon
-                  sx={{
-                    fontSize: 48,
-                    color: 'primary.main',
-                    mb: 2,
-                    filter: 'drop-shadow(0 2px 8px rgba(0, 122, 255, 0.3))'
-                  }}
-                />
+                {isEditMode ? (
+                  <EditIcon
+                    sx={{
+                      fontSize: 48,
+                      color: 'primary.main',
+                      mb: 2,
+                      filter: 'drop-shadow(0 2px 8px rgba(0, 122, 255, 0.3))'
+                    }}
+                  />
+                ) : (
+                  <PersonAddIcon
+                    sx={{
+                      fontSize: 48,
+                      color: 'primary.main',
+                      mb: 2,
+                      filter: 'drop-shadow(0 2px 8px rgba(0, 122, 255, 0.3))'
+                    }}
+                  />
+                )}
                 <Typography
                   variant="h4"
                   component="h1"
@@ -98,14 +174,17 @@ const Register = () => {
                     color: 'text.primary'
                   }}
                 >
-                  Join FAXRN
+                  {isEditMode ? 'Edit Profile' : 'Join FAXRN'}
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ fontWeight: 400 }}
                 >
-                  Create your account to start participating in discussions
+                  {isEditMode
+                    ? 'Update your username and password'
+                    : 'Create your account to start participating in discussions'
+                  }
                 </Typography>
               </Box>
 
@@ -126,6 +205,8 @@ const Register = () => {
                 </Fade>
               )}
 
+
+
               <Box component="form" sx={{ mt: 2 }}>
                 <TextField
                   id="username"
@@ -136,12 +217,14 @@ const Register = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -169,36 +252,46 @@ const Register = () => {
                   type="email"
                   value={data.email}
                   onChange={inputHandler}
+                  disabled={isEditMode}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
                       transition: 'all 0.2s ease-in-out',
+                      backgroundColor: isEditMode ? 'action.disabledBackground' : 'transparent',
                       '&:hover': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'primary.main',
+                          borderColor: isEditMode ? 'action.disabled' : 'primary.main',
                         }
                       },
                       '&.Mui-focused': {
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderWidth: 2,
                         }
+                      },
+                      '&.Mui-disabled': {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'action.disabled',
+                        }
                       }
                     }
                   }}
+                  helperText={isEditMode ? "Email cannot be changed" : ""}
                 />
 
                 <TextField
                   id="password"
-                  label="Password"
+                  label={isEditMode ? "New Password (optional)" : "Password"}
                   variant="outlined"
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -206,23 +299,25 @@ const Register = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: 'text.secondary' }}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -240,6 +335,7 @@ const Register = () => {
                       }
                     }
                   }}
+                  helperText={isEditMode ? "Leave blank to keep current password" : ""}
                 />
 
                 <Button
@@ -266,23 +362,40 @@ const Register = () => {
                     }
                   }}
                 >
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                  {isLoading
+                    ? (isEditMode ? 'Updating Profile...' : 'Creating Account...')
+                    : (isEditMode ? 'Update Profile' : 'Create Account')
+                  }
                 </Button>
 
                 <Box sx={{ textAlign: 'center', mt: 3 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Already have an account?{' '}
-                    <Link
-                      to="/login"
-                      style={{
-                        color: 'var(--color-primary)',
-                        textDecoration: 'none',
-                        fontWeight: 600
+                  {isEditMode ? (
+                    <Button
+                      variant="text"
+                      onClick={() => navigate(-1)}
+                      sx={{
+                        color: 'text.secondary',
+                        textTransform: 'none',
+                        fontWeight: 500
                       }}
                     >
-                      Sign in here
-                    </Link>
-                  </Typography>
+                      Cancel
+                    </Button>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      Already have an account?{' '}
+                      <Link
+                        to="/login"
+                        style={{
+                          color: 'var(--color-primary)',
+                          textDecoration: 'none',
+                          fontWeight: 600
+                        }}
+                      >
+                        Sign in here
+                      </Link>
+                    </Typography>
+                  )}
                 </Box>
               </Box>
             </Paper>

@@ -1,0 +1,22 @@
+{
+  "name": "FAXRN - Community Discussion Platform",
+  "short_name": "FAXRN",
+  "description": "A modern community platform for discussions, posts, and social interaction",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#007AFF",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

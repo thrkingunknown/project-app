@@ -140,12 +140,14 @@ const Login = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -175,23 +177,25 @@ const Login = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: 'text.secondary' }}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -263,6 +267,19 @@ const Login = () => {
                       }}
                     >
                       Resend verification
+                    </Link>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Forgot your password?{' '}
+                    <Link
+                      to="/forgot-password"
+                      style={{
+                        color: 'var(--color-primary)',
+                        textDecoration: 'none',
+                        fontWeight: 600
+                      }}
+                    >
+                      Reset password
                     </Link>
                   </Typography>
                 </Box>

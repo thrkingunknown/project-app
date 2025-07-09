@@ -127,6 +127,8 @@ const PostView = () => {
       return;
     }
 
+    setIsLoading(true);
+
     if (commEdit === false) {
       axios
         .post(
@@ -143,6 +145,9 @@ const PostView = () => {
         .catch((err) => {
           console.log(err);
           alert("Error adding comment");
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     } else {
       axios
@@ -162,6 +167,9 @@ const PostView = () => {
         .catch((err) => {
           console.log(err);
           alert("Error updating comment");
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   };
@@ -201,7 +209,7 @@ const PostView = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 6, px: 2, py: 3 }}>
       <Fade in timeout={600}>
         <Paper
           elevation={0}
@@ -398,12 +406,14 @@ const PostView = () => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 margin="normal"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 2 }}>
-                      <CommentIcon sx={{ color: 'text.secondary' }} />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 2 }}>
+                        <CommentIcon sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {

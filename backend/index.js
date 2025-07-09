@@ -61,6 +61,36 @@ var sendVerificationEmail = async (email, token, username) => {
     }
 };
 
+// Send password reset email
+var sendPasswordResetEmail = async (email, token, username) => {
+    var resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    var mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: email,
+        subject: `${process.env.PLATFORM_NAME} - Password Reset Request`,
+        html: `
+            <h2>Password Reset Request</h2>
+            <p>Hi ${username},</p>
+            <p>You requested to reset your password for your ${process.env.PLATFORM_NAME} account. Please click the link below to reset your password:</p>
+            <a href="${resetUrl}" style="background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+            <p>Or copy and paste this link in your browser:</p>
+            <p>${resetUrl}</p>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
+            <br>
+            <p>Best regards,<br>The ${process.env.PLATFORM_NAME} Team</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Password reset email sent to:', email);
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        throw error;
+    }
+};
+
 app.get('/', (req, res) => {
     res.json({
         message: 'FAXRN Backend API is running!',
@@ -216,6 +246,93 @@ app.post('/resend-verification', async (req, res) => {
     }
 });
 
+// Simple rate limiting for forgot password (in production, use Redis or proper rate limiting middleware)
+var forgotPasswordAttempts = new Map();
+
+// Forgot password - send reset email
+app.post('/forgot-password', async (req, res) => {
+    try {
+        var { email } = req.body;
+
+        if (!email) {
+            return res.send('Email is required');
+        }
+
+        // Rate limiting: max 3 attempts per email per 15 minutes
+        var now = Date.now();
+        var attempts = forgotPasswordAttempts.get(email) || [];
+        var recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000); // 15 minutes
+
+        if (recentAttempts.length >= 3) {
+            return res.send('Too many password reset attempts. Please try again later.');
+        }
+
+        // Record this attempt
+        recentAttempts.push(now);
+        forgotPasswordAttempts.set(email, recentAttempts);
+
+        var user = await User.findOne({ email: email });
+
+        // Always return the same success message to prevent user enumeration
+        // Only send email if user actually exists
+        if (user) {
+            // Generate reset token
+            var resetToken = crypto.randomBytes(32).toString('hex');
+            var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+            user.resetPasswordToken = resetToken;
+            user.resetPasswordTokenExpires = resetTokenExpires;
+            await user.save();
+
+            await sendPasswordResetEmail(email, resetToken, user.username);
+        }
+
+        // Always return the same message regardless of whether user exists
+        res.send('If an account with that email exists, a password reset link has been sent.');
+    } catch (error) {
+        console.log('Forgot password error:', error);
+        res.send('Error sending password reset email: ' + error);
+    }
+});
+
+// Reset password with token
+app.post('/reset-password', async (req, res) => {
+    try {
+        var { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.send('Token and new password are required');
+        }
+
+        if (newPassword.length < 6) {
+            return res.send('Password must be at least 6 characters long');
+        }
+
+        var user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordTokenExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.send('Invalid or expired reset token');
+        }
+
+        // Hash new password
+        var hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS) || 10);
+
+        // Update password and clear reset token
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordTokenExpires = undefined;
+        await user.save();
+
+        res.send('Password reset successfully! You can now login with your new password.');
+    } catch (error) {
+        console.log('Reset password error:', error);
+        res.send('Error resetting password: ' + error);
+    }
+});
+
 app.get('/posts', async (req, res) => {
     try {
         var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
@@ -281,6 +398,32 @@ app.delete('/posts/:id', checkAuth, async (req, res) => {
     }
 });
 
+app.get('/search', async (req, res) => {
+    try {
+        var { q } = req.query;
+
+        if (!q || q.trim() === '') {
+            return res.json([]);
+        }
+
+        var searchRegex = new RegExp(q.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+
+        var posts = await Post.find({
+            $or: [
+                { title: { $regex: searchRegex } },
+                { content: { $regex: searchRegex } }
+            ]
+        })
+        .populate('author', 'username')
+        .sort({ createdAt: -1 });
+
+        res.json(posts);
+    } catch (error) {
+        console.error('Error searching posts:', error);
+        res.status(500).json({ error: 'Error searching posts', message: error.message });
+    }
+});
+
 app.post('/posts/:id/comments', checkAuth, async (req, res) => {
     try {
         var comment = new Comment({
@@ -324,7 +467,7 @@ app.put('/comments/:id', checkAuth, async (req, res) => {
     } catch (error) {
         res.send('Error updating comment: ' + error);
     }
-})
+});
 app.get('/users', checkAuth, async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
@@ -358,6 +501,60 @@ app.delete('/users/:id', checkAuth, async (req, res) => {
         res.send('Error deleting user: ' + error);
     }
 });
+
+app.put('/profile', checkAuth, async (req, res) => {
+    try {
+        var { username, password } = req.body;
+        var userId = req.user.id;
+
+        if (!username || username.trim() === '') {
+            return res.status(400).json({ message: 'Username is required' });
+        }
+
+        if (username.trim().length < 3) {
+            return res.status(400).json({ message: 'Username must be at least 3 characters long' });
+        }
+
+        if (password && password.trim() && password.trim().length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+        }
+
+        var user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (username.trim() !== user.username) {
+            var existingUser = await User.findOne({ username: username.trim() });
+            if (existingUser && existingUser._id.toString() !== userId) {
+                return res.status(400).json({ message: 'Username already taken' });
+            }
+            user.username = username.trim();
+        }
+
+        if (password && password.trim()) {
+            var hashedPassword = await bcrypt.hash(password.trim(), parseInt(process.env.BCRYPT_ROUNDS) || 10);
+            user.password = hashedPassword;
+        }
+
+        await user.save();
+
+        // Return success response with updated user info (excluding password)
+        res.json({
+            message: 'Profile updated successfully',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified
+            }
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ message: 'Error updating profile: ' + error.message });
+    }
+});
 app.post("/posts/:id/like", checkAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -368,7 +565,6 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
     const userIndex = post.likedBy.indexOf(req.user.id);
 
     if (userIndex > -1) {
-      //unlike
       post.likes--;
       post.likedBy.splice(userIndex, 1);
       await post.save();
@@ -379,7 +575,6 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
         action: 'unliked'
       });
     } else {
-    //  like
       post.likes++;
       post.likedBy.push(req.user.id);
       await post.save();
@@ -396,7 +591,6 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
   }
 });
 
-// local dev only
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`${process.env.PLATFORM_NAME} Server is running on http://localhost:${port}`);

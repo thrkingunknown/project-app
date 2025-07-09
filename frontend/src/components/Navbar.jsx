@@ -11,12 +11,15 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  InputBase,
+  Paper,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ForumIcon from "@mui/icons-material/Forum";
 import PersonIcon from "@mui/icons-material/Person";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+import SearchIcon from "@mui/icons-material/Search";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../hooks/useTheme.js";
 
@@ -28,6 +31,7 @@ const Navbar = () => {
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -44,6 +48,13 @@ const Navbar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  React.useEffect(() => {
+    return () => {
+      setAnchorElNav(null);
+      setAnchorElUser(null);
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -66,6 +77,25 @@ const Navbar = () => {
       navigate(`/profile/${user.id}`);
     } else if (action === "admin") {
       navigate("/admin");
+    }
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      handleCloseNavMenu();
+      setSearchQuery("");
+    }
+  };
+
+  const handleSearchKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearchSubmit(event);
     }
   };
 
@@ -183,7 +213,7 @@ const Navbar = () => {
                 vertical: "bottom",
                 horizontal: "left",
               }}
-              keepMounted
+              keepMounted={false}
               transformOrigin={{
                 vertical: "top",
                 horizontal: "left",
@@ -199,9 +229,69 @@ const Navbar = () => {
                   backdropFilter: 'blur(20px)',
                   border: '1px solid',
                   borderColor: 'divider',
+                  minWidth: 280,
                 }
               }}
             >
+              <Box sx={{ px: 2, py: 1 }}>
+                <Paper
+                  component="form"
+                  onSubmit={handleSearchSubmit}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    height: 40,
+                    borderRadius: 3,
+                    backgroundColor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 2px 8px rgba(0, 122, 255, 0.15)'
+                    },
+                    '&:focus-within': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 2px 8px rgba(0, 122, 255, 0.25)'
+                    }
+                  }}
+                  elevation={0}
+                >
+                  <InputBase
+                    sx={{
+                      ml: 2,
+                      flex: 1,
+                      fontSize: '0.9rem',
+                      '& input::placeholder': {
+                        color: 'text.secondary',
+                        opacity: 0.7
+                      }
+                    }}
+                    placeholder="Search posts..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleSearchKeyPress}
+                    inputProps={{ 'aria-label': 'search posts' }}
+                  />
+                  <IconButton
+                    type="submit"
+                    sx={{
+                      p: 1,
+                      color: 'text.secondary',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        color: 'primary.main',
+                        backgroundColor: 'action.hover'
+                      }
+                    }}
+                    aria-label="search"
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </Paper>
+              </Box>
+
               {pages.map((page) => (
                 <MenuItem
                   key={page.name}
@@ -264,7 +354,7 @@ const Navbar = () => {
 
           <Box
             sx={{
-              flexGrow: 1,
+              flexGrow: 0,
               display: { xs: "none", md: "flex" },
               justifyContent: 'center',
               gap: 1
@@ -297,6 +387,74 @@ const Navbar = () => {
                 {page.name}
               </Button>
             ))}
+          </Box>
+
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              justifyContent: 'center',
+              mx: 3
+            }}
+          >
+            <Paper
+              component="form"
+              onSubmit={handleSearchSubmit}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                maxWidth: 400,
+                height: 40,
+                borderRadius: 3,
+                backgroundColor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                backdropFilter: 'blur(20px)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  boxShadow: '0 4px 12px rgba(0, 122, 255, 0.15)'
+                },
+                '&:focus-within': {
+                  borderColor: 'primary.main',
+                  boxShadow: '0 4px 12px rgba(0, 122, 255, 0.25)'
+                }
+              }}
+              elevation={0}
+            >
+              <InputBase
+                sx={{
+                  ml: 2,
+                  flex: 1,
+                  fontSize: '0.9rem',
+                  '& input::placeholder': {
+                    color: 'text.secondary',
+                    opacity: 0.7
+                  }
+                }}
+                placeholder="Search posts..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyPress}
+                inputProps={{ 'aria-label': 'search posts' }}
+              />
+              <IconButton
+                type="submit"
+                sx={{
+                  p: 1,
+                  color: 'text.secondary',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    color: 'primary.main',
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+                aria-label="search"
+              >
+                <SearchIcon />
+              </IconButton>
+            </Paper>
           </Box>
 
           <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -370,13 +528,13 @@ const Navbar = () => {
                       minWidth: 180,
                     }
                   }}
-                  id="menu-appbar"
+                  id="menu-appbar-user"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
                     vertical: "top",
                     horizontal: "right",
                   }}
-                  keepMounted
+                  keepMounted={false}
                   transformOrigin={{
                     vertical: "top",
                     horizontal: "right",
