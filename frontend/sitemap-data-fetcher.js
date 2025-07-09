@@ -4,7 +4,7 @@ import axios from 'axios';
  * @param {string} backendUrl - The backend API URL
  * @returns {Promise<string[]>} Array of post IDs
  */
-export async function getPostIds(backendUrl = 'https://project-app-omega-two.vercel.app') {
+export async function getPostIds(backendUrl = 'https://faxrn.vercel.app') {
   try {
     console.log('Fetching posts for sitemap...');
     const response = await axios.get(`${backendUrl}/posts`);

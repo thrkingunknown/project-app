@@ -9,7 +9,8 @@ export default defineConfig(async ({ mode }) => {
 
   const env = loadEnv(mode, process.cwd(), '');
 
-  const backendUrl = env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const backendUrl =
+    env.VITE_BACKEND_URL || 'https://project-app-back.vercel.app/';
 
   const postIds = await getPostIds(backendUrl);
 
@@ -17,7 +18,7 @@ export default defineConfig(async ({ mode }) => {
 
   console.log(`Sitemap will include ${postRoutes.length} post routes`);
 
-  const hostname = env.VITE_FRONTEND_URL || 'https://project-app-omega-two.vercel.app/';
+  const hostname = env.VITE_FRONTEND_URL || 'https://faxrn.vercel.app/';
 
   return {
     plugins: [
