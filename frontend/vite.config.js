@@ -7,6 +7,6 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    Sitemap({ hostname: "https://project-app-omega-two.vercel.app/" }),
+    Sitemap({ hostname: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/` : 'http://localhost:5173/' }),
   ],
 });
