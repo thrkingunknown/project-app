@@ -69,7 +69,14 @@ const Profile = () => {
   return (
     <Container maxWidth="md" style={{ marginTop: "20px" }}>
       <Paper style={{ padding: "30px" }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2,
+          }}
+        >
           <Typography variant="h4" component="h1" gutterBottom>
             User Profile
           </Typography>
@@ -78,18 +85,18 @@ const Profile = () => {
               variant="contained"
               color="primary"
               startIcon={<EditIcon />}
-              onClick={() => navigate('/edit-profile')}
+              onClick={() => navigate("/edit-profile")}
               sx={{
                 borderRadius: 2,
-                textTransform: 'none',
+                textTransform: "none",
                 fontWeight: 600,
                 px: 3,
                 py: 1,
-                boxShadow: '0 4px 12px rgba(0, 122, 255, 0.3)',
-                '&:hover': {
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 6px 16px rgba(0, 122, 255, 0.4)'
-                }
+                boxShadow: "0 4px 12px rgba(0, 122, 255, 0.3)",
+                "&:hover": {
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 6px 16px rgba(0, 122, 255, 0.4)",
+                },
               }}
             >
               Edit Profile
@@ -125,7 +132,7 @@ const Profile = () => {
         <Grid container spacing={2}>
           {userData.posts &&
             userData.posts.map((post) => (
-              <Grid size={{ xs: 12 }} key={post._id}>
+              <Grid item xs={12} key={post._id}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" component="h3" gutterBottom>
