@@ -265,6 +265,19 @@ const Login = () => {
                       Resend verification
                     </Link>
                   </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Forgot your password?{' '}
+                    <Link
+                      to="/forgot-password"
+                      style={{
+                        color: 'var(--color-primary)',
+                        textDecoration: 'none',
+                        fontWeight: 600
+                      }}
+                    >
+                      Reset password
+                    </Link>
+                  </Typography>
                 </Box>
               </Box>
             </Paper>

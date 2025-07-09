@@ -7,7 +7,9 @@ import {
   CardContent,
   Button,
   Grid,
+  Box,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -67,9 +69,34 @@ const Profile = () => {
   return (
     <Container maxWidth="md" style={{ marginTop: "20px" }}>
       <Paper style={{ padding: "30px" }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          User Profile
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            User Profile
+          </Typography>
+          {currentUser.id === userData.user?._id && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<EditIcon />}
+              onClick={() => navigate('/edit-profile')}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                py: 1,
+                boxShadow: '0 4px 12px rgba(0, 122, 255, 0.3)',
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 16px rgba(0, 122, 255, 0.4)'
+                }
+              }}
+            >
+              Edit Profile
+            </Button>
+          )}
+        </Box>
+
         <Typography variant="h5" gutterBottom>
           {userData.user?.username || "Unknown User"}
         </Typography>

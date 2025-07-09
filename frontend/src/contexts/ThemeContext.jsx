@@ -11,12 +11,10 @@ export const CustomThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
-    // Update the data-mui-color-scheme attribute on the html element
     document.documentElement.setAttribute(
       'data-mui-color-scheme',
       isDarkMode ? 'dark' : 'light'
     );
-    // Also update body for additional styling
     document.body.setAttribute(
       'data-mui-color-scheme',
       isDarkMode ? 'dark' : 'light'
@@ -31,26 +29,26 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "light",
       primary: {
-        main: "#007AFF", // Accent Color from colour.md
+        main: "#007AFF",
         light: "#4DA3FF",
         dark: "#0056CC",
         contrastText: "#FFFFFF",
       },
       secondary: {
-        main: "#E5E5EA", // Tertiary Color for secondary elements
+        main: "#E5E5EA",
         light: "#F2F2F7",
         dark: "#D1D1D6",
         contrastText: "#000000",
       },
       background: {
-        default: "#FFFFFF", // Main Color
-        paper: "#F5F5F7", // Secondary Color
+        default: "#FFFFFF",
+        paper: "#F5F5F7",
       },
       text: {
         primary: "#000000",
         secondary: "#6D6D70",
       },
-      divider: "#E5E5EA", // Tertiary Color for borders and dividers
+      divider: "#E5E5EA",
       action: {
         hover: "rgba(0, 122, 255, 0.04)",
         selected: "rgba(0, 122, 255, 0.08)",
@@ -108,26 +106,26 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode: "dark",
       primary: {
-        main: "#0A84FF", // Brighter Blue for dark mode
+        main: "#0A84FF",
         light: "#4DA3FF",
         dark: "#0056CC",
         contrastText: "#FFFFFF",
       },
       secondary: {
-        main: "#3A3A3C", // Gray for secondary elements
+        main: "#3A3A3C",
         light: "#48484A",
         dark: "#2C2C2E",
         contrastText: "#FFFFFF",
       },
       background: {
-        default: "#1C1C1E", // Almost Black
-        paper: "#2C2C2E", // Dark Gray
+        default: "#1C1C1E",
+        paper: "#2C2C2E",
       },
       text: {
         primary: "#FFFFFF",
         secondary: "#AEAEB2",
       },
-      divider: "#3A3A3C", // Gray for borders and dividers
+      divider: "#3A3A3C",
       action: {
         hover: "rgba(10, 132, 255, 0.08)",
         selected: "rgba(10, 132, 255, 0.16)",

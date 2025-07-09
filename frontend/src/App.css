@@ -11,7 +11,6 @@
   transition: all var(--transition-normal);
 }
 
-/* Dark mode specific styling for root */
 [data-mui-color-scheme="dark"] #root {
   background-color: #1C1C1E !important;
 }
@@ -25,13 +24,11 @@ body {
   overflow-x: hidden;
 }
 
-/* Dark mode specific styling for body */
 [data-mui-color-scheme="dark"] body {
   background-color: #1C1C1E !important;
   color: #FFFFFF !important;
 }
 
-/* Utility classes for animations */
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -75,7 +72,6 @@ body {
   }
 }
 
-/* Loading animation */
 .loading-pulse {
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -89,7 +85,6 @@ body {
   }
 }
 
-/* Glassmorphism effect */
 .glass {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
