@@ -388,7 +388,7 @@ app.get('/search', async (req, res) => {
             return res.json([]);
         }
 
-        var searchRegex = new RegExp(q.trim(), 'i');
+        var searchRegex = new RegExp(q.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
 
         var posts = await Post.find({
             $or: [
