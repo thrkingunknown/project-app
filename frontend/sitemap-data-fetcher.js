@@ -22,35 +22,3 @@ export async function getPostIds(backendUrl = 'https://project-app-omega-two.ver
     return [];
   }
 }
-
-/**
- * @param {string} backendUrl - The backend API URL
- * @returns {Promise<string[]>} Array of unique user IDs
- */
-export async function getUserIds(
-  backendUrl = "https://project-app-omega-two.vercel.app"
-) {
-  try {
-    console.log("Fetching user IDs for sitemap...");
-    const response = await axios.get(`${backendUrl}/posts`);
-
-    if (Array.isArray(response.data)) {
-      const userIds = [
-        ...new Set(
-          response.data
-            .map((post) => post.author?._id || post.author)
-            .filter((id) => id)
-        ),
-      ];
-
-      console.log(`Found ${userIds.length} unique users for sitemap`);
-      return userIds;
-    } else {
-      console.warn("Posts data is not an array:", response.data);
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching user IDs for sitemap:", error.message);
-    return [];
-  }
-}
