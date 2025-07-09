@@ -11,10 +11,7 @@ import {
   IconButton,
   Fade,
   Grow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -35,7 +32,7 @@ const Register = () => {
   var [isError, setIsError] = useState(false);
   var [showPassword, setShowPassword] = useState(false);
   var [isLoading, setIsLoading] = useState(false);
-  var [showNotRegisteredPopup, setShowNotRegisteredPopup] = useState(false);
+
 
   var isEditMode = location.pathname.includes('/edit-profile');
 
@@ -53,15 +50,7 @@ const Register = () => {
       }
     }
 
-    // Handle "not registered" popup from forgot password
-    if (location.state?.showNotRegisteredPopup) {
-      setShowNotRegisteredPopup(true);
-      if (location.state?.email) {
-        setData(prev => ({ ...prev, email: location.state.email }));
-      }
-      // Clear the state to prevent showing popup on refresh
-      navigate(location.pathname, { replace: true });
-    }
+
   }, [isEditMode, navigate, location]);
 
   var inputHandler = (e) => {
@@ -216,34 +205,7 @@ const Register = () => {
                 </Fade>
               )}
 
-              {/* Not Registered Popup */}
-              <Dialog
-                open={showNotRegisteredPopup}
-                onClose={() => setShowNotRegisteredPopup(false)}
-                maxWidth="sm"
-                fullWidth
-              >
-                <DialogTitle>
-                  <Typography variant="h6" color="error">
-                    Email Not Registered
-                  </Typography>
-                </DialogTitle>
-                <DialogContent>
-                  <Typography variant="body1">
-                    The email address you entered is not registered with us.
-                    Please create an account to continue.
-                  </Typography>
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={() => setShowNotRegisteredPopup(false)}
-                    color="primary"
-                    variant="contained"
-                  >
-                    OK, I'll Register
-                  </Button>
-                </DialogActions>
-              </Dialog>
+
 
               <Box component="form" sx={{ mt: 2 }}>
                 <TextField
@@ -255,12 +217,14 @@ const Register = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -291,12 +255,14 @@ const Register = () => {
                   disabled={isEditMode}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -333,23 +299,25 @@ const Register = () => {
                   onChange={inputHandler}
                   fullWidth
                   margin="normal"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: 'text.secondary' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: 'text.secondary' }}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {

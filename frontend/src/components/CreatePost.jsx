@@ -22,7 +22,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import CreateIcon from "@mui/icons-material/Create";
 import CancelIcon from "@mui/icons-material/Cancel";
 
-const CreatePost = (props) => {
+const CreatePost = () => {
   var navigate = useNavigate();
   var location = useLocation();
   var [data, setData] = useState({ title: "", content: "", image: "" });
@@ -30,14 +30,14 @@ const CreatePost = (props) => {
   var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   useEffect(() => {
     if (location.state !== null) {
-      setData({
-        ...data,
+      setData((prevData) => ({
+        ...prevData,
         title: location.state.title,
         content: location.state.content,
         image: location.state.image,
-      });
+      }));
     }
-  }, []);
+  }, [location.state]);
 
   const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
@@ -57,7 +57,7 @@ const CreatePost = (props) => {
       alert("Please login first");
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   var inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -165,12 +165,14 @@ const CreatePost = (props) => {
                 onChange={inputHandler}
                 fullWidth
                 margin="normal"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <TitleIcon sx={{ color: 'text.secondary' }} />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <TitleIcon sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -201,12 +203,14 @@ const CreatePost = (props) => {
                 multiline
                 rows={8}
                 margin="normal"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 2 }}>
-                      <ArticleIcon sx={{ color: 'text.secondary' }} />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 2 }}>
+                        <ArticleIcon sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {

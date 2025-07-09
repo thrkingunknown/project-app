@@ -271,7 +271,7 @@ const Navbar = () => {
                     placeholder="Search posts..."
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    onKeyPress={handleSearchKeyPress}
+                    onKeyDown={handleSearchKeyPress}
                     inputProps={{ 'aria-label': 'search posts' }}
                   />
                   <IconButton
@@ -436,7 +436,7 @@ const Navbar = () => {
                 placeholder="Search posts..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                onKeyPress={handleSearchKeyPress}
+                onKeyDown={handleSearchKeyPress}
                 inputProps={{ 'aria-label': 'search posts' }}
               />
               <IconButton

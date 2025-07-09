@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { highlightText } from "../utils/regexUtils.jsx";
 import {
   Container,
   Typography,
@@ -69,20 +70,7 @@ const SearchResults = () => {
     });
   };
 
-  const highlightText = (text, searchTerm) => {
-    if (!searchTerm.trim()) return text;
-    
-    const regex = new RegExp(`(${searchTerm.trim()})`, 'gi');
-    const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
-      regex.test(part) ? (
-        <span key={index} style={{ backgroundColor: '#ffeb3b', fontWeight: 'bold' }}>
-          {part}
-        </span>
-      ) : part
-    );
-  };
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

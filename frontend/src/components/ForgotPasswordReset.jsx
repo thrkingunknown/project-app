@@ -166,28 +166,30 @@ const ForgotPasswordReset = () => {
                     type={showPassword ? "text" : "password"}
                     value={data.newPassword}
                     onChange={inputHandler}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     style={{ marginBottom: "20px" }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon style={{ color: "white" }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            style={{ color: "white" }}
-                          >
-                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      style: { color: "white" },
-                    }}
-                    InputLabelProps={{
-                      style: { color: "white" },
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockIcon style={{ color: "white" }} />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              style={{ color: "white" }}
+                            >
+                              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                        style: { color: "white" },
+                      },
+                      inputLabel: {
+                        style: { color: "white" },
+                      }
                     }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
@@ -212,28 +214,30 @@ const ForgotPasswordReset = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     value={data.confirmPassword}
                     onChange={inputHandler}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     style={{ marginBottom: "20px" }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon style={{ color: "white" }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            style={{ color: "white" }}
-                          >
-                            {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                      style: { color: "white" },
-                    }}
-                    InputLabelProps={{
-                      style: { color: "white" },
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockIcon style={{ color: "white" }} />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              style={{ color: "white" }}
+                            >
+                              {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                        style: { color: "white" },
+                      },
+                      inputLabel: {
+                        style: { color: "white" },
+                      }
                     }}
                     sx={{
                       "& .MuiOutlinedInput-root": {

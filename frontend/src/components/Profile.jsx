@@ -125,7 +125,7 @@ const Profile = () => {
         <Grid container spacing={2}>
           {userData.posts &&
             userData.posts.map((post) => (
-              <Grid size={12} key={post._id}>
+              <Grid size={{ xs: 12 }} key={post._id}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" component="h3" gutterBottom>

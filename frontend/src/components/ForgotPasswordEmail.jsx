@@ -47,20 +47,11 @@ const ForgotPasswordEmail = () => {
       .post(`${import.meta.env.VITE_BACKEND_URL}/forgot-password`, { email })
       .then((response) => {
         console.log("Forgot password response:", response.data);
-        
-        if (response.data === "not-registered") {
-          // Redirect to register page with popup
-          navigate("/register", { 
-            state: { 
-              showNotRegisteredPopup: true,
-              email: email 
-            } 
-          });
-        } else {
-          setMessage(response.data);
-          setIsError(false);
-          setIsSuccess(true);
-        }
+
+        // Always show success message to prevent user enumeration
+        setMessage(response.data);
+        setIsError(false);
+        setIsSuccess(true);
       })
       .catch((error) => {
         console.error("Error sending reset email:", error);
@@ -125,18 +116,20 @@ const ForgotPasswordEmail = () => {
                     type="email"
                     value={email}
                     onChange={inputHandler}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     style={{ marginBottom: "20px" }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailIcon style={{ color: "white" }} />
-                        </InputAdornment>
-                      ),
-                      style: { color: "white" },
-                    }}
-                    InputLabelProps={{
-                      style: { color: "white" },
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailIcon style={{ color: "white" }} />
+                          </InputAdornment>
+                        ),
+                        style: { color: "white" },
+                      },
+                      inputLabel: {
+                        style: { color: "white" },
+                      }
                     }}
                     sx={{
                       "& .MuiOutlinedInput-root": {

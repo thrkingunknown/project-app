@@ -246,6 +246,9 @@ app.post('/resend-verification', async (req, res) => {
     }
 });
 
+// Simple rate limiting for forgot password (in production, use Redis or proper rate limiting middleware)
+var forgotPasswordAttempts = new Map();
+
 // Forgot password - send reset email
 app.post('/forgot-password', async (req, res) => {
     try {
@@ -255,22 +258,37 @@ app.post('/forgot-password', async (req, res) => {
             return res.send('Email is required');
         }
 
-        var user = await User.findOne({ email: email });
-        if (!user) {
-            return res.send('not-registered');
+        // Rate limiting: max 3 attempts per email per 15 minutes
+        var now = Date.now();
+        var attempts = forgotPasswordAttempts.get(email) || [];
+        var recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000); // 15 minutes
+
+        if (recentAttempts.length >= 3) {
+            return res.send('Too many password reset attempts. Please try again later.');
         }
 
-        // Generate reset token
-        var resetToken = crypto.randomBytes(32).toString('hex');
-        var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        // Record this attempt
+        recentAttempts.push(now);
+        forgotPasswordAttempts.set(email, recentAttempts);
 
-        user.resetPasswordToken = resetToken;
-        user.resetPasswordTokenExpires = resetTokenExpires;
-        await user.save();
+        var user = await User.findOne({ email: email });
 
-        await sendPasswordResetEmail(email, resetToken, user.username);
+        // Always return the same success message to prevent user enumeration
+        // Only send email if user actually exists
+        if (user) {
+            // Generate reset token
+            var resetToken = crypto.randomBytes(32).toString('hex');
+            var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-        res.send('Password reset email sent! Please check your inbox.');
+            user.resetPasswordToken = resetToken;
+            user.resetPasswordTokenExpires = resetTokenExpires;
+            await user.save();
+
+            await sendPasswordResetEmail(email, resetToken, user.username);
+        }
+
+        // Always return the same message regardless of whether user exists
+        res.send('If an account with that email exists, a password reset link has been sent.');
     } catch (error) {
         console.log('Forgot password error:', error);
         res.send('Error sending password reset email: ' + error);
