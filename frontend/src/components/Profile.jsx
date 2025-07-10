@@ -8,6 +8,8 @@ import {
   Button,
   Grid,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
@@ -17,6 +19,7 @@ const Profile = () => {
   var { id } = useParams();
   var navigate = useNavigate();
   var [userData, setUserData] = useState(null);
+  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const Profile = () => {
       })
       .catch((err) => {
         console.log(err);
-        alert("Error loading profile");
+        setSnackbar({ open: true, message: "Error loading profile", severity: "error" });
       });
   }, [id]);
 
@@ -37,9 +40,9 @@ const Profile = () => {
   };
 
   var handleDeletePost = (postId) => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login first", severity: "warning" });
       return;
     }
 
@@ -49,12 +52,16 @@ const Profile = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
+        // Update userData to remove the deleted post
+        setUserData(prevData => ({
+          ...prevData,
+          posts: prevData.posts.filter(post => post._id !== postId)
+        }));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting post");
+        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };
 
@@ -186,6 +193,21 @@ const Profile = () => {
           </Typography>
         )}
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

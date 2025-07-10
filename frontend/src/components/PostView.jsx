@@ -40,7 +40,7 @@ const PostView = () => {
   var [isLoading, setIsLoading] = useState(false);
   var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   var user = JSON.parse(localStorage.getItem("user") || "{}");
-  var token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
 
   useEffect(() => {
@@ -175,7 +175,7 @@ const PostView = () => {
   };
   var handleDeleteComment = (commentId) => {
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login first", severity: "warning" });
       return;
     }
 
@@ -185,12 +185,16 @@ const PostView = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "Comment deleted successfully", severity: "success" });
+        // Update post state to remove the deleted comment
+        setPost(prevPost => ({
+          ...prevPost,
+          comments: prevPost.comments.filter(comment => comment._id !== commentId)
+        }));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting comment");
+        setSnackbar({ open: true, message: "Error deleting comment", severity: "error" });
       });
   };
 

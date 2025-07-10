@@ -65,7 +65,7 @@ const Register = () => {
     setIsLoading(true);
 
     if (isEditMode) {
-      var token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         setMessage("Please login first");
         setIsError(true);

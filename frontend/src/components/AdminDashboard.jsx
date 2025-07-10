@@ -13,6 +13,8 @@ import {
   Tabs,
   Tab,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -22,12 +24,13 @@ const AdminDashboard = () => {
   var [users, setUsers] = useState([]);
   var [posts, setPosts] = useState([]);
   var [tabValue, setTabValue] = useState(0);
+  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-  var token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (currentUser.role !== "admin") {
-      alert("Admin access required");
+      setSnackbar({ open: true, message: "Admin access required", severity: "error" });
       navigate("/");
       return;
     }
@@ -42,7 +45,7 @@ const AdminDashboard = () => {
       })
       .catch((err) => {
         console.log(err);
-        alert("Error loading users");
+        setSnackbar({ open: true, message: "Error loading users", severity: "error" });
       });
 
     axios
@@ -53,12 +56,13 @@ const AdminDashboard = () => {
       })
       .catch((err) => {
         console.log(err);
+        setSnackbar({ open: true, message: "Error loading posts", severity: "error" });
       });
   }, []);
 
   var handleDeleteUser = (userId) => {
     if (userId === currentUser.id) {
-      alert("Cannot delete your own account");
+      setSnackbar({ open: true, message: "Cannot delete your own account", severity: "warning" });
       return;
     }
 
@@ -68,12 +72,13 @@ const AdminDashboard = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "User deleted successfully", severity: "success" });
+        // Update state instead of reloading
+        setUsers(users.filter(user => user._id !== userId));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting user");
+        setSnackbar({ open: true, message: "Error deleting user", severity: "error" });
       });
   };
 
@@ -84,12 +89,13 @@ const AdminDashboard = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
+        // Update state instead of reloading
+        setPosts(posts.filter(post => post._id !== postId));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting post");
+        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };
 
@@ -215,6 +221,21 @@ const AdminDashboard = () => {
           </TableContainer>
         </Paper>
       )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
