@@ -1,21 +1,17 @@
 :root {
-  /* Typography */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   line-height: 1.6;
   font-weight: 400;
 
-  /* Color scheme */
   color-scheme: light dark;
 
-  /* Font rendering */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Light mode colors */
   --color-primary: #007AFF;
   --color-primary-light: #4DA3FF;
   --color-primary-dark: #0056CC;
@@ -24,21 +20,18 @@
   --color-surface: #F5F5F7;
   --color-border: #E5E5EA;
   --color-text-primary: #000000;
-  --color-text-secondary: #6D6D70;
+  --color-text-secondary: #5A5A5E;
 
-  /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.16);
 
-  /* Border radius */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
 
-  /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -46,7 +39,6 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Transitions */
   --transition-fast: 0.15s ease-in-out;
   --transition-normal: 0.2s ease-in-out;
   --transition-slow: 0.3s ease-in-out;
@@ -58,7 +50,6 @@
 }
 
 [data-mui-color-scheme="dark"] {
-  /* Dark mode color overrides */
   --color-primary: #0A84FF;
   --color-primary-light: #4DA3FF;
   --color-primary-dark: #0056CC;
@@ -67,9 +58,8 @@
   --color-surface: #2C2C2E;
   --color-border: #3A3A3C;
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #AEAEB2;
+  --color-text-secondary: #B8B8BC;
 
-  /* Dark mode shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -79,7 +69,6 @@
   background-color: var(--color-background) !important;
 }
 
-/* Ensure body and html inherit dark mode colors properly */
 html[data-mui-color-scheme="dark"] {
   background-color: #1C1C1E !important;
   color: #FFFFFF !important;
@@ -90,7 +79,6 @@ body[data-mui-color-scheme="dark"] {
   color: #FFFFFF !important;
 }
 
-/* Global transitions */
 * {
   transition:
     background-color var(--transition-normal),
@@ -100,7 +88,6 @@ body[data-mui-color-scheme="dark"] {
     transform var(--transition-fast);
 }
 
-/* Improved scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -121,20 +108,17 @@ body[data-mui-color-scheme="dark"] {
   background: var(--color-border);
 }
 
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-secondary) var(--color-surface);
 }
 
-/* Focus styles */
 *:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-/* Selection styles */
 ::selection {
   background-color: rgba(0, 122, 255, 0.2);
   color: var(--color-text-primary);

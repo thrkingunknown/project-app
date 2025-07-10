@@ -16,7 +16,7 @@ const EmailVerification = () => {
   var [message, setMessage] = useState("");
 
   useEffect(() => {
-    var token = searchParams.get("token");
+    const token = searchParams.get("token");
 
     if (!token) {
       setStatus("error");

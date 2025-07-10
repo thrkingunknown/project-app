@@ -14,6 +14,8 @@ var userSchema = mongoose.Schema({
   },
   verificationToken: String,
   verificationTokenExpires: Date,
+  resetPasswordToken: String,
+  resetPasswordTokenExpires: Date,
   createdAt: {
     type: Date,
     default: Date.now

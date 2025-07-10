@@ -7,7 +7,11 @@ import {
   CardContent,
   Button,
   Grid,
+  Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -15,6 +19,7 @@ const Profile = () => {
   var { id } = useParams();
   var navigate = useNavigate();
   var [userData, setUserData] = useState(null);
+  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -26,7 +31,7 @@ const Profile = () => {
       })
       .catch((err) => {
         console.log(err);
-        alert("Error loading profile");
+        setSnackbar({ open: true, message: "Error loading profile", severity: "error" });
       });
   }, [id]);
 
@@ -35,9 +40,9 @@ const Profile = () => {
   };
 
   var handleDeletePost = (postId) => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login first", severity: "warning" });
       return;
     }
 
@@ -47,12 +52,16 @@ const Profile = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
+        // Update userData to remove the deleted post
+        setUserData(prevData => ({
+          ...prevData,
+          posts: prevData.posts.filter(post => post._id !== postId)
+        }));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting post");
+        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };
 
@@ -67,9 +76,41 @@ const Profile = () => {
   return (
     <Container maxWidth="md" style={{ marginTop: "20px" }}>
       <Paper style={{ padding: "30px" }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          User Profile
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom>
+            User Profile
+          </Typography>
+          {currentUser.id === userData.user?._id && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<EditIcon />}
+              onClick={() => navigate("/edit-profile")}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+                px: 3,
+                py: 1,
+                boxShadow: "0 4px 12px rgba(0, 122, 255, 0.3)",
+                "&:hover": {
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 6px 16px rgba(0, 122, 255, 0.4)",
+                },
+              }}
+            >
+              Edit Profile
+            </Button>
+          )}
+        </Box>
+
         <Typography variant="h5" gutterBottom>
           {userData.user?.username || "Unknown User"}
         </Typography>
@@ -98,7 +139,7 @@ const Profile = () => {
         <Grid container spacing={2}>
           {userData.posts &&
             userData.posts.map((post) => (
-              <Grid size={12} key={post._id}>
+              <Grid item xs={12} key={post._id}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" component="h3" gutterBottom>
@@ -152,6 +193,21 @@ const Profile = () => {
           </Typography>
         )}
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

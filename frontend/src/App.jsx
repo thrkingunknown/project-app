@@ -11,6 +11,9 @@ import Profile from "./components/Profile.jsx";
 import AdminDashboard from "./components/AdminDashboard.jsx";
 import EmailVerification from "./components/EmailVerification.jsx";
 import ResendVerification from "./components/ResendVerification.jsx";
+import SearchResults from "./components/SearchResults.jsx";
+import ForgotPasswordEmail from "./components/ForgotPasswordEmail.jsx";
+import ForgotPasswordReset from "./components/ForgotPasswordReset.jsx";
 import { Routes, Route } from "react-router-dom";
 import ExternalRedirect from "./components/ExternalRedirect.jsx";
 
@@ -31,11 +34,20 @@ function App() {
 
         <Route path="/profile/:id" element={<Profile />} />
 
+        <Route path="/edit-profile" element={<Register />} />
+
         <Route path="/admin" element={<AdminDashboard />} />
+
+        <Route path="/search" element={<SearchResults />} />
 
         <Route path="/verify-email" element={<EmailVerification />} />
 
         <Route path="/resend-verification" element={<ResendVerification />} />
+
+        <Route path="/forgot-password" element={<ForgotPasswordEmail />} />
+
+        <Route path="/reset-password" element={<ForgotPasswordReset />} />
+
         <Route
           path="*"
           element={
