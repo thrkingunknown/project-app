@@ -20,7 +20,7 @@
   --color-surface: #F5F5F7;
   --color-border: #E5E5EA;
   --color-text-primary: #000000;
-  --color-text-secondary: #6D6D70;
+  --color-text-secondary: #5A5A5E;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -58,7 +58,7 @@
   --color-surface: #2C2C2E;
   --color-border: #3A3A3C;
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #AEAEB2;
+  --color-text-secondary: #B8B8BC;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);

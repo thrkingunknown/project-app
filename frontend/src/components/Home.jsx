@@ -66,7 +66,6 @@ const Home = () => {
       .then((res) => {
         console.log(res);
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
-        // Remove the deleted post from state instead of reloading
         setPosts(posts.filter(post => post._id !== id));
       })
       .catch((err) => {
@@ -101,7 +100,7 @@ const Home = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 2, mb: 6 }}>
+    <Container maxWidth="md" sx={{ mt: 2, mb: 6 }} component="main" role="main">
       <Box sx={{ mb: 3 }}>
         <Typography
           variant="h5"
@@ -110,6 +109,7 @@ const Home = () => {
             fontWeight: 600,
             color: 'text.primary'
           }}
+          id="posts-heading"
         >
           Popular Posts
         </Typography>
@@ -211,6 +211,7 @@ const Home = () => {
                       >
                         <IconButton
                           size="small"
+                          aria-label={`Like post: ${post.title}`}
                           sx={{
                             p: 0.5,
                             '&:hover': {

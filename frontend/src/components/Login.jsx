@@ -129,7 +129,7 @@ const Login = () => {
                 </Fade>
               )}
 
-              <Box component="form" sx={{ mt: 2 }}>
+              <Box component="form" sx={{ mt: 2 }} role="form" aria-label="Login form">
                 <TextField
                   id="email"
                   label="Email"
@@ -189,6 +189,7 @@ const Login = () => {
                           <IconButton
                             onClick={() => setShowPassword(!showPassword)}
                             edge="end"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                             sx={{ color: 'text.secondary' }}
                           >
                             {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}

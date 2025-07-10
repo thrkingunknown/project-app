@@ -30,5 +30,14 @@ export default defineConfig(async ({ mode }) => {
         exclude: ['/admin', '/login', '/register', '/create-post', '/edit-profile', '/verify-email', '/resend-verification', '/forgot-password', '/reset-password']
       }),
     ],
+    build: {
+      sourcemap: true, // Enable source maps for production
+      rollupOptions: {
+        output: {
+          // Separate source maps from main bundles for security
+          sourcemapExcludeSources: true,
+        }
+      }
+    },
   };
 });

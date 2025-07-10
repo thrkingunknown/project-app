@@ -22,18 +22,15 @@ const CompactSearchBar = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Handle search input change
   const handleInputChange = (event) => {
     const value = event.target.value;
     setSearchValue(value);
-    
-    // Call onSearch callback if provided
+
     if (onSearch) {
       onSearch(value);
     }
   };
 
-  // Handle search button click
   const handleSearchClick = () => {
     if (expandable && !isExpanded) {
       setIsExpanded(true);
@@ -45,7 +42,6 @@ const CompactSearchBar = ({
     }
   };
 
-  // Handle clear button click
   const handleClearClick = () => {
     setSearchValue('');
     if (onClear) {
@@ -56,7 +52,6 @@ const CompactSearchBar = ({
     }
   };
 
-  // Handle close/collapse
   const handleClose = () => {
     if (expandable) {
       setIsExpanded(false);
@@ -67,7 +62,6 @@ const CompactSearchBar = ({
     }
   };
 
-  // Handle Enter key press
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       if (onSearch && searchValue.trim()) {
@@ -79,12 +73,12 @@ const CompactSearchBar = ({
     }
   };
 
-  // If expandable and not expanded, show just the search icon
   if (expandable && !isExpanded) {
     return (
       <IconButton
         onClick={handleSearchClick}
         size={size}
+        aria-label="Open search"
         sx={{
           color: 'var(--color-text-secondary)',
           transition: 'all var(--transition-fast)',
@@ -139,6 +133,7 @@ const CompactSearchBar = ({
                     onClick={handleSearchClick}
                     disabled={!searchValue.trim()}
                     size="small"
+                    aria-label="Search"
                     sx={{
                       color: searchValue.trim()
                         ? 'var(--color-primary)'
@@ -157,53 +152,56 @@ const CompactSearchBar = ({
                   </IconButton>
                 </InputAdornment>
               ),
-            endAdornment: (
-              <InputAdornment position="end">
-                {searchValue && (
-                  <IconButton
-                    onClick={handleClearClick}
-                    size="small"
-                    sx={{
-                      color: 'var(--color-text-secondary)',
-                      transition: 'all var(--transition-fast)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 0, 0, 0.08)',
-                        color: '#ff4444',
-                        transform: 'scale(1.05)',
-                      }
-                    }}
-                  >
-                    <Clear fontSize="small" />
-                  </IconButton>
-                )}
-                {expandable && (
-                  <IconButton
-                    onClick={handleClose}
-                    size="small"
-                    sx={{
-                      color: 'var(--color-text-secondary)',
-                      transition: 'all var(--transition-fast)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.08)',
-                        transform: 'scale(1.05)',
-                      }
-                    }}
-                  >
-                    <Close fontSize="small" />
-                  </IconButton>
-                )}
-              </InputAdornment>
-            ),
-            sx: {
-              padding: '8px 12px',
-              '& input': {
-                color: 'var(--color-text-primary)',
-                fontSize: isMobile ? '14px' : '15px',
-                padding: 0,
-              },
-              '& input::placeholder': {
-                color: 'var(--color-text-secondary)',
-                opacity: 0.7,
+              endAdornment: (
+                <InputAdornment position="end">
+                  {searchValue && (
+                    <IconButton
+                      onClick={handleClearClick}
+                      size="small"
+                      aria-label="Clear search"
+                      sx={{
+                        color: 'var(--color-text-secondary)',
+                        transition: 'all var(--transition-fast)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 0, 0, 0.08)',
+                          color: '#ff4444',
+                          transform: 'scale(1.05)',
+                        }
+                      }}
+                    >
+                      <Clear fontSize="small" />
+                    </IconButton>
+                  )}
+                  {expandable && (
+                    <IconButton
+                      onClick={handleClose}
+                      size="small"
+                      aria-label="Close search"
+                      sx={{
+                        color: 'var(--color-text-secondary)',
+                        transition: 'all var(--transition-fast)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                          transform: 'scale(1.05)',
+                        }
+                      }}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ),
+              sx: {
+                padding: '8px 12px',
+                '& input': {
+                  color: 'var(--color-text-primary)',
+                  fontSize: isMobile ? '14px' : '15px',
+                  padding: 0,
+                },
+                '& input::placeholder': {
+                  color: 'var(--color-text-secondary)',
+                  opacity: 0.7,
+                }
               }
             }
           }}
