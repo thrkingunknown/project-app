@@ -191,7 +191,7 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="Open navigation menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -465,6 +465,7 @@ const Navbar = () => {
             >
               <IconButton
                 onClick={toggleDarkMode}
+                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
                 sx={{
                   mr: 1,
                   color: 'text.primary',
@@ -484,6 +485,7 @@ const Navbar = () => {
                 <Tooltip title="Open settings">
                   <IconButton
                     onClick={handleOpenUserMenu}
+                    aria-label="Open user menu"
                     sx={{
                       p: 0,
                       transition: 'all 0.2s ease-in-out',

@@ -155,7 +155,7 @@ const CreatePost = () => {
                 {location.state ? 'Update your post content' : 'Share your thoughts with the community'}
               </Typography>
             </Box>
-            <Box component="form" sx={{ mt: 2 }}>
+            <Box component="form" sx={{ mt: 2 }} role="form" aria-label="Create post form">
               <TextField
                 id="title"
                 label="Post Title"
@@ -165,6 +165,8 @@ const CreatePost = () => {
                 onChange={inputHandler}
                 fullWidth
                 margin="normal"
+                required
+                aria-describedby="title-helper-text"
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -203,6 +205,8 @@ const CreatePost = () => {
                 multiline
                 rows={8}
                 margin="normal"
+                required
+                aria-describedby="content-helper-text"
                 slotProps={{
                   input: {
                     startAdornment: (
