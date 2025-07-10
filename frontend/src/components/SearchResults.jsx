@@ -8,19 +8,15 @@ import {
   Box,
   Card,
   CardContent,
-  CardActions,
   Button,
-  Grid,
   Chip,
   CircularProgress,
-  Fade,
-  Grow,
   Alert,
-  Paper,
+  IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PersonIcon from "@mui/icons-material/Person";
+import CommentIcon from "@mui/icons-material/Comment";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -62,6 +58,31 @@ const SearchResults = () => {
     navigate(`/post/${id}`);
   };
 
+  const handleLike = (id) => {
+    var token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}/like`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log(res);
+        setPosts(posts.map(post =>
+          post._id === id
+            ? { ...post, likes: res.data.likes }
+            : post
+        ));
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("Error liking post");
+      });
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -73,211 +94,213 @@ const SearchResults = () => {
 
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Fade in timeout={300}>
-        <Paper
+    <Container maxWidth="md" sx={{ mt: 2, mb: 6 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          variant="h5"
+          component="h1"
           sx={{
-            p: 3,
-            mb: 4,
-            borderRadius: 3,
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid",
-            borderColor: "divider",
+            fontWeight: 600,
+            color: 'text.primary',
+            mb: 1
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <SearchIcon sx={{ color: "primary.main", fontSize: 28 }} />
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 700, color: "text.primary" }}
-            >
-              Search Results
+          Search Results
+        </Typography>
+        {query && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Typography variant="body2" color="text.secondary">
+              Results for:
             </Typography>
-          </Box>
-
-          {query && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography variant="body1" color="text.secondary">
-                Results for:
+            <Chip
+              label={`"${query}"`}
+              color="primary"
+              variant="outlined"
+              size="small"
+              sx={{ fontWeight: 500 }}
+            />
+            {!loading && (
+              <Typography variant="body2" color="text.secondary">
+                ({posts.length} {posts.length === 1 ? "result" : "results"} found)
               </Typography>
-              <Chip
-                label={`"${query}"`}
-                color="primary"
-                variant="outlined"
-                sx={{ fontWeight: 500 }}
-              />
-              {!loading && (
-                <Typography variant="body2" color="text.secondary">
-                  ({posts.length} {posts.length === 1 ? "result" : "results"}{" "}
-                  found)
-                </Typography>
-              )}
-            </Box>
-          )}
-        </Paper>
-      </Fade>
+            )}
+          </Box>
+        )}
+      </Box>
 
       {loading && (
-        <Fade in timeout={300}>
-          <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-            <CircularProgress size={40} />
-          </Box>
-        </Fade>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+          <CircularProgress size={40} />
+        </Box>
       )}
 
       {error && (
-        <Fade in timeout={300}>
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-            {error}
-          </Alert>
-        </Fade>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+          {error}
+        </Alert>
       )}
 
       {!query.trim() && !loading && (
-        <Fade in timeout={300}>
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <SearchIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
+        <Card sx={{ textAlign: 'center', py: 6, borderRadius: 2 }}>
+          <CardContent>
+            <SearchIcon sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
             <Typography variant="h6" color="text.secondary">
               Enter a search term to find posts
             </Typography>
-          </Box>
-        </Fade>
+          </CardContent>
+        </Card>
       )}
 
       {query.trim() && !loading && posts.length === 0 && !error && (
-        <Fade in timeout={300}>
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <SearchIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
+        <Card sx={{ textAlign: 'center', py: 6, borderRadius: 2 }}>
+          <CardContent>
+            <SearchIcon sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No posts found for "{query}"
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Try different keywords or check your spelling
             </Typography>
-          </Box>
-        </Fade>
+          </CardContent>
+        </Card>
       )}
 
       {!loading && posts.length > 0 && (
-        <Grid container spacing={3}>
-          {posts.map((post, index) => (
-            <Grid item xs={12} sm={6} md={4} key={post._id}>
-              <Grow in timeout={300 + index * 100}>
-                <Card
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {posts.map((post) => (
+            <Card
+              key={post._id}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: "background.paper",
+                cursor: 'pointer',
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  borderColor: 'text.secondary',
+                  backgroundColor: 'action.hover',
+                },
+              }}
+              onClick={() => handlePostClick(post._id)}
+            >
+              <CardContent sx={{ p: 2, display: 'flex', gap: 2 }}>
+                <Box
                   sx={{
-                    height: "100%",
-                    borderRadius: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    bgcolor: "background.paper",
-                    display: "flex",
-                    flexDirection: "column",
-                    cursor: "pointer",
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    "&:hover": {
-                      transform: "translateY(-8px) scale(1.02)",
-                      boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
-                      borderColor: "primary.main",
-                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: 40,
+                    py: 1
                   }}
-                  onClick={() => handlePostClick(post._id)}
                 >
-                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        mb: 2,
-                        color: "text.primary",
-                        lineHeight: 1.3,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {highlightText(post.title, query)}
-                    </Typography>
+                  <IconButton
+                    size="small"
+                    sx={{
+                      p: 0.5,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 69, 0, 0.1)',
+                        color: 'orange'
+                      }
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLike(post._id);
+                    }}
+                  >
+                    <ThumbUpOffAltIcon fontSize="small" />
+                  </IconButton>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      color: 'text.secondary',
+                      my: 0.5
+                    }}
+                  >
+                    {post.likes || 0}
+                  </Typography>
+                </Box>
 
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      color: 'text.primary',
+                      mb: 1,
+                      lineHeight: 1.3,
+                      '&:hover': {
+                        color: 'primary.main'
+                      }
+                    }}
+                  >
+                    {highlightText(post.title, query)}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                     <Typography
-                      variant="body2"
+                      variant="caption"
                       color="text.secondary"
-                      sx={{
-                        mb: 3,
-                        lineHeight: 1.6,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
+                      sx={{ fontWeight: 500 }}
                     >
-                      {highlightText(post.content, query)}
+                      Posted by {post.author?.username || "Unknown"}
                     </Typography>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        flexWrap: "wrap",
-                      }}
+                    <Typography variant="caption" color="text.secondary">
+                      •
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
                     >
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                      >
-                        <PersonIcon
-                          sx={{ fontSize: 16, color: "text.secondary" }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          {post.author?.username || "Unknown"}
-                        </Typography>
-                      </Box>
+                      {formatDate(post.createdAt)}
+                    </Typography>
+                  </Box>
 
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                      >
-                        <AccessTimeIcon
-                          sx={{ fontSize: 16, color: "text.secondary" }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(post.createdAt)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      mb: 2,
+                      lineHeight: 1.4,
+                      color: 'text.secondary'
+                    }}
+                  >
+                    {highlightText(post.content, query)}
+                  </Typography>
 
-                  <CardActions sx={{ p: 3, pt: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Button
                       size="small"
-                      variant="outlined"
+                      startIcon={<CommentIcon />}
                       sx={{
-                        borderRadius: 2,
-                        textTransform: "none",
+                        color: 'text.secondary',
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
                         fontWeight: 500,
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "translateY(-1px)",
-                          boxShadow: "0 4px 12px rgba(0, 122, 255, 0.15)",
-                        },
+                        minWidth: 'auto',
+                        p: 0.5,
+                        '&:hover': {
+                          backgroundColor: 'action.hover'
+                        }
                       }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      Read More
+                      {post.comments?.length || 0} Comments
                     </Button>
-                  </CardActions>
-                </Card>
-              </Grow>
-            </Grid>
+                  </Box>
+                </Box>
+              </CardContent>
+
+            </Card>
           ))}
-        </Grid>
+        </Box>
       )}
     </Container>
   );
