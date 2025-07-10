@@ -39,10 +39,6 @@
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://va.vercel-scripts.com https://partner.googleadservices.com https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; media-src 'self' data: https:; object-src 'none'; frame-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com; connect-src 'self' https://project-app-back.vercel.app https://vitals.vercel-insights.com https://va.vercel-scripts.com https://pagead2.googlesyndication.com https://www.google-analytics.com https://stats.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
         }
       ]
     }
