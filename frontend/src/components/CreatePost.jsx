@@ -52,7 +52,7 @@ const CreatePost = () => {
   });
 
   useEffect(() => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login first");
       navigate("/login");
@@ -65,7 +65,7 @@ const CreatePost = () => {
   };
 
   var submitHandler = () => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "error" });
       setTimeout(() => navigate("/login"), 2000);

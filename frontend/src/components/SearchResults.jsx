@@ -13,6 +13,7 @@ import {
   CircularProgress,
   Alert,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CommentIcon from "@mui/icons-material/Comment";
@@ -23,6 +24,7 @@ const SearchResults = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const navigate = useNavigate();
   
   const query = searchParams.get("q") || "";
@@ -59,9 +61,9 @@ const SearchResults = () => {
   };
 
   const handleLike = (id) => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login to like this post", severity: "warning" });
       return;
     }
 
@@ -73,13 +75,13 @@ const SearchResults = () => {
         console.log(res);
         setPosts(posts.map(post =>
           post._id === id
-            ? { ...post, likes: res.data.likes }
+            ? { ...post, likes: res.data.likes, likedBy: res.data.likedBy }
             : post
         ));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error liking post");
+        setSnackbar({ open: true, message: "Error liking post", severity: "error" });
       });
   };
 
@@ -302,6 +304,21 @@ const SearchResults = () => {
           ))}
         </Box>
       )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

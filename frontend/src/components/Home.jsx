@@ -7,6 +7,8 @@ import {
   Box,
   Skeleton,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -19,6 +21,7 @@ import ShareIcon from "@mui/icons-material/Share";
 const Home = () => {
   var [posts, setPosts] = useState([]);
   var [loading, setLoading] = useState(true);
+  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   var navigate = useNavigate();
   var user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -49,9 +52,9 @@ const Home = () => {
   };
 
   var handleDelete = (id) => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login first", severity: "warning" });
       return;
     }
 
@@ -62,19 +65,20 @@ const Home = () => {
       })
       .then((res) => {
         console.log(res);
-        alert(res.data);
-        window.location.reload();
+        setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
+        // Remove the deleted post from state instead of reloading
+        setPosts(posts.filter(post => post._id !== id));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error deleting post");
+        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };
 
   var handleLike = (id) => {
-    var token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
+      setSnackbar({ open: true, message: "Please login to like this post", severity: "warning" });
       return;
     }
 
@@ -86,13 +90,13 @@ const Home = () => {
         console.log(res);
         setPosts(posts.map(post =>
           post._id === id
-            ? { ...post, likes: res.data.likes }
+            ? { ...post, likes: res.data.likes, likedBy: res.data.likedBy }
             : post
         ));
       })
       .catch((err) => {
         console.log(err);
-        alert("Error liking post");
+        setSnackbar({ open: true, message: "Error liking post", severity: "error" });
       });
   };
 
@@ -339,6 +343,21 @@ const Home = () => {
           )}
         </>
       )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
