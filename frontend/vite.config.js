@@ -35,7 +35,7 @@ export default defineConfig(async ({ mode }) => {
       rollupOptions: {
         output: {
           // Separate source maps from main bundles for security
-          sourcemapExcludeSources: false,
+          sourcemapExcludeSources: true,
         }
       }
     },
