@@ -1,26 +1,19 @@
-/**
- * Utility functions for safe regex operations
- */
 
 /**
- * Escapes special regex characters in a string to prevent regex injection
- * @param {string} string - The string to escape
- * @returns {string} - The escaped string safe for use in RegExp constructor
+ * @param {string} string
+ * @returns {string}
  */
 export const escapeRegexCharacters = (string) => {
   if (typeof string !== 'string') {
     return '';
   }
-  
-  // Escape all special regex characters
-  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 };
 
 /**
- * Creates a safe RegExp object from user input
- * @param {string} searchTerm - The search term from user input
- * @param {string} flags - RegExp flags (default: 'gi')
- * @returns {RegExp} - A safe RegExp object
+ * @param {string} searchTerm
+ * @param {string} flags
+ * @returns {RegExp}
  */
 export const createSafeRegex = (searchTerm, flags = 'gi') => {
   if (!searchTerm || typeof searchTerm !== 'string') {
@@ -32,11 +25,10 @@ export const createSafeRegex = (searchTerm, flags = 'gi') => {
 };
 
 /**
- * Highlights text by wrapping matches in a span element
- * @param {string} text - The text to highlight
- * @param {string} searchTerm - The term to highlight
- * @param {Object} highlightStyle - CSS styles for highlighting (optional)
- * @returns {Array} - Array of React elements and strings
+ * @param {string} text
+ * @param {string} searchTerm
+ * @param {Object} highlightStyle
+ * @returns {Array}
  */
 export const highlightText = (text, searchTerm, highlightStyle = { backgroundColor: '#ffeb3b', fontWeight: 'bold' }) => {
   if (!searchTerm || !searchTerm.trim() || !text) {

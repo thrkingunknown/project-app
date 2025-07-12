@@ -58,7 +58,7 @@ const AdminDashboard = () => {
         console.log(err);
         setSnackbar({ open: true, message: "Error loading posts", severity: "error" });
       });
-  }, []);
+  }, [currentUser.role, navigate, token]);
 
   var handleDeleteUser = (userId) => {
     if (userId === currentUser.id) {
@@ -73,7 +73,6 @@ const AdminDashboard = () => {
       .then((res) => {
         console.log(res);
         setSnackbar({ open: true, message: "User deleted successfully", severity: "success" });
-        // Update state instead of reloading
         setUsers(users.filter(user => user._id !== userId));
       })
       .catch((err) => {
@@ -90,7 +89,6 @@ const AdminDashboard = () => {
       .then((res) => {
         console.log(res);
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
-        // Update state instead of reloading
         setPosts(posts.filter(post => post._id !== postId));
       })
       .catch((err) => {

@@ -53,7 +53,6 @@ const Profile = () => {
       .then((res) => {
         console.log(res);
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
-        // Update userData to remove the deleted post
         setUserData(prevData => ({
           ...prevData,
           posts: prevData.posts.filter(post => post._id !== postId)

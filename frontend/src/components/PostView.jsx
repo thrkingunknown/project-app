@@ -29,6 +29,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CommentIcon from "@mui/icons-material/Comment";
 import SendIcon from "@mui/icons-material/Send";
 import CancelIcon from "@mui/icons-material/Cancel";
+import ReactMarkdown from "react-markdown";
 
 const PostView = () => {
   var { id } = useParams();
@@ -186,7 +187,6 @@ const PostView = () => {
       .then((res) => {
         console.log(res);
         setSnackbar({ open: true, message: "Comment deleted successfully", severity: "success" });
-        // Update post state to remove the deleted comment
         setPost(prevPost => ({
           ...prevPost,
           comments: prevPost.comments.filter(comment => comment._id !== commentId)
@@ -226,7 +226,6 @@ const PostView = () => {
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
           }}
         >
-          {/* Post Header */}
           <Box sx={{ mb: 4 }}>
             <Typography
               variant="h4"
@@ -258,9 +257,9 @@ const PostView = () => {
             </Box>
           </Box>
 
-          {/* Post Content */}
           <Box sx={{ mb: 4 }}>
             <Typography
+              component="div"
               variant="body1"
               sx={{
                 lineHeight: 1.7,
@@ -268,10 +267,10 @@ const PostView = () => {
                 color: 'text.primary'
               }}
             >
-              {post.content}
+              <ReactMarkdown children={post.content} />
             </Typography>
           </Box>
-          {/* Post Actions */}
+
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', mb: 4 }}>
             <Button
               variant="outlined"
@@ -372,7 +371,6 @@ const PostView = () => {
         </Paper>
       </Fade>
 
-      {/* Comments Section */}
       <Fade in timeout={800}>
         <Paper
           elevation={0}
@@ -595,7 +593,6 @@ const PostView = () => {
         </Paper>
       </Fade>
 
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}

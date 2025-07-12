@@ -46,7 +46,7 @@ export const CustomThemeProvider = ({ children }) => {
       },
       text: {
         primary: "#000000",
-        secondary: "#5A5A5E", // Improved contrast from #6D6D70
+        secondary: "#5A5A5E",
       },
       divider: "#E5E5EA",
       action: {
@@ -123,7 +123,7 @@ export const CustomThemeProvider = ({ children }) => {
       },
       text: {
         primary: "#FFFFFF",
-        secondary: "#B8B8BC", // Improved contrast from #AEAEB2
+        secondary: "#B8B8BC",
       },
       divider: "#3A3A3C",
       action: {
