@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import CommentIcon from "@mui/icons-material/Comment";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ShareIcon from "@mui/icons-material/Share";
+import ReactMarkdown from "react-markdown";
 
 const Home = () => {
   var [posts, setPosts] = useState([]);
@@ -274,6 +274,7 @@ const Home = () => {
                           </Typography>
                         </Box>
                         <Typography
+                          component="div"
                           variant="body2"
                           sx={{
                             overflow: "hidden",
@@ -286,7 +287,7 @@ const Home = () => {
                             color: 'text.secondary'
                           }}
                         >
-                          {post.content.substring(0, 150)}...
+                          <ReactMarkdown children={post.content.substring(0, 150)} />
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           <Button

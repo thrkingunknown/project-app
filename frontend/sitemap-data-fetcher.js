@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 /**
- * @param {string} backendUrl - The backend API URL
- * @returns {Promise<string[]>} Array of post IDs
+ * @param {string} backendUrl
+ * @returns {Promise<string[]>}
  */
 export async function getPostIds(backendUrl = 'https://faxrn.vercel.app') {
   try {

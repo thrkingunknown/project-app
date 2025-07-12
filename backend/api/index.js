@@ -61,7 +61,6 @@ var sendVerificationEmail = async (email, token, username) => {
     }
 };
 
-// Send password reset email
 var sendPasswordResetEmail = async (email, token, username) => {
     var resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     var mailOptions = {
@@ -246,10 +245,8 @@ app.post('/resend-verification', async (req, res) => {
     }
 });
 
-// Simple rate limiting for forgot password (in production, use Redis or proper rate limiting middleware)
 var forgotPasswordAttempts = new Map();
 
-// Forgot password - send reset email
 app.post('/forgot-password', async (req, res) => {
     try {
         var { email } = req.body;
@@ -258,27 +255,22 @@ app.post('/forgot-password', async (req, res) => {
             return res.send('Email is required');
         }
 
-        // Rate limiting: max 3 attempts per email per 15 minutes
         var now = Date.now();
         var attempts = forgotPasswordAttempts.get(email) || [];
-        var recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000); // 15 minutes
+        var recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000);
 
         if (recentAttempts.length >= 3) {
             return res.send('Too many password reset attempts. Please try again later.');
         }
 
-        // Record this attempt
         recentAttempts.push(now);
         forgotPasswordAttempts.set(email, recentAttempts);
 
         var user = await User.findOne({ email: email });
 
-        // Always return the same success message to prevent user enumeration
-        // Only send email if user actually exists
         if (user) {
-            // Generate reset token
             var resetToken = crypto.randomBytes(32).toString('hex');
-            var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+            var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
 
             user.resetPasswordToken = resetToken;
             user.resetPasswordTokenExpires = resetTokenExpires;
@@ -287,7 +279,6 @@ app.post('/forgot-password', async (req, res) => {
             await sendPasswordResetEmail(email, resetToken, user.username);
         }
 
-        // Always return the same message regardless of whether user exists
         res.send('If an account with that email exists, a password reset link has been sent.');
     } catch (error) {
         console.log('Forgot password error:', error);
@@ -295,7 +286,6 @@ app.post('/forgot-password', async (req, res) => {
     }
 });
 
-// Reset password with token
 app.post('/reset-password', async (req, res) => {
     try {
         var { token, newPassword } = req.body;
@@ -317,10 +307,8 @@ app.post('/reset-password', async (req, res) => {
             return res.send('Invalid or expired reset token');
         }
 
-        // Hash new password
         var hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS) || 10);
 
-        // Update password and clear reset token
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordTokenExpires = undefined;
@@ -539,7 +527,6 @@ app.put('/profile', checkAuth, async (req, res) => {
 
         await user.save();
 
-        // Return success response with updated user info (excluding password)
         res.json({
             message: 'Profile updated successfully',
             user: {
@@ -591,5 +578,4 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
   }
 });
 
-// Export the Express app for Vercel functions
 module.exports = app;

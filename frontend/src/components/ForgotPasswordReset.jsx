@@ -53,7 +53,6 @@ const ForgotPasswordReset = () => {
     setIsError(false);
     setIsLoading(true);
 
-    // Validation
     if (!data.newPassword || !data.confirmPassword) {
       setMessage("Please fill in all fields");
       setIsError(true);
@@ -93,7 +92,6 @@ const ForgotPasswordReset = () => {
         setIsError(false);
         setIsSuccess(true);
         
-        // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate("/login");
         }, 3000);

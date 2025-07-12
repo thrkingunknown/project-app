@@ -13,24 +13,23 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SendIcon from "@mui/icons-material/Send";
 
 const ForgotPasswordEmail = () => {
-  var navigate = useNavigate();
-  var [email, setEmail] = useState("");
-  var [message, setMessage] = useState("");
-  var [isError, setIsError] = useState(false);
-  var [isLoading, setIsLoading] = useState(false);
-  var [isSuccess, setIsSuccess] = useState(false);
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  var inputHandler = (e) => {
+  const inputHandler = (e) => {
     setEmail(e.target.value);
   };
 
-  var submitHandler = () => {
+  const submitHandler = () => {
     console.log("forgot password email", email);
     setMessage("");
     setIsError(false);
@@ -63,7 +62,7 @@ const ForgotPasswordEmail = () => {
       });
   };
 
-  var handleKeyPress = (e) => {
+  const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       submitHandler();
     }
