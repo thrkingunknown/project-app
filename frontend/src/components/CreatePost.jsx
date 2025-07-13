@@ -28,6 +28,7 @@ const CreatePost = () => {
   var [data, setData] = useState({ title: "", content: "", image: "" });
   var [isLoading, setIsLoading] = useState(false);
   var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [imagePreview, setImagePreview] = useState("");
   useEffect(() => {
     if (location.state !== null) {
       setData((prevData) => ({
@@ -62,6 +63,22 @@ const CreatePost = () => {
   var inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
     console.log(data);
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+      setSnackbar({ open: true, message: "Image size should not exceed 5MB", severity: "error" });
+      return;
+    }
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setData({ ...data, image: reader.result });
+        setImagePreview(reader.result);
+      };
+    }
   };
 
   var submitHandler = () => {
@@ -252,10 +269,21 @@ const CreatePost = () => {
                   Upload Image
                   <VisuallyHiddenInput
                     type="file"
-                    onChange={(event) => console.log(event.target.files)}
+                    onChange={handleImageUpload}
                     accept="image/*"
                   />
                 </Button>
+
+                {imagePreview && (
+                  <Box sx={{ mt: 2, textAlign: 'center' }}>
+                    <Typography variant="subtitle1" gutterBottom>Image Preview:</Typography>
+                    <img src={imagePreview} alt="Preview" style={{ width: "300px",
+                      height: "auto",
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      objectFit: "cover" }} />
+                  </Box>
+                )}
 
                 <Button
                   variant="contained"

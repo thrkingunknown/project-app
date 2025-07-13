@@ -24,8 +24,8 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 app.use(cors({
     origin: process.env.FRONTEND_URL,
@@ -324,7 +324,14 @@ app.post('/reset-password', async (req, res) => {
 app.get('/posts', async (req, res) => {
     try {
         var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
-        res.json(posts);
+        const postsWithImages = posts.map(post => {
+            const postObject = post.toObject();
+            if (postObject.img && postObject.img.data) {
+                postObject.img = `data:${postObject.img.contentType};base64,${postObject.img.data.toString('base64')}`;
+            }
+            return postObject;
+        });
+        res.json(postsWithImages);
     } catch (error) {
         console.error('Error getting posts:', error);
         res.status(500).json({ error: 'Error getting posts', message: error.message });
@@ -333,12 +340,23 @@ app.get('/posts', async (req, res) => {
 
 app.post('/posts', checkAuth, async (req, res) => {
     try {
-        var post = new Post({
-            title: req.body.title,
-            content: req.body.content,
-            image: req.body.image,
-            author: req.user.id
+        const { title, content, image } = req.body;
+        const post = new Post({
+            title,
+            content,
+            author: req.user.id,
         });
+
+        if (image) {
+            const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                post.img = {
+                    data: Buffer.from(matches[2], 'base64'),
+                    contentType: matches[1],
+                };
+            }
+        }
+
         await post.save();
         res.send('Post created successfully');
     } catch (error) {
@@ -354,7 +372,16 @@ app.get('/posts/:id', async (req, res) => {
                 path: 'comments',
                 populate: { path: 'author', select: 'username' }
             });
-        res.send(post);
+        
+        if (post) {
+            let postObject = post.toObject();
+            if (postObject.img && postObject.img.data) {
+                postObject.img = `data:${postObject.img.contentType};base64,${postObject.img.data.toString('base64')}`;
+            }
+            res.send(postObject);
+        } else {
+            res.status(404).send('Post not found');
+        }
     } catch (error) {
         res.send('Error getting post: ' + error);
     }
@@ -362,11 +389,27 @@ app.get('/posts/:id', async (req, res) => {
 
 app.put('/posts/:id', checkAuth, async (req, res) => {
     try {
-        var post = await Post.findById(req.params.id);
+        const { title, content, image } = req.body;
+        const post = await Post.findById(req.params.id);
+
         if (post.author.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.send('Not authorized');
         }
-        await Post.findByIdAndUpdate(req.params.id, req.body);
+
+        post.title = title;
+        post.content = content;
+
+        if (image) {
+            const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                post.img = {
+                    data: Buffer.from(matches[2], 'base64'),
+                    contentType: matches[1],
+                };
+            }
+        }
+
+        await post.save();
         res.send('Post updated successfully');
     } catch (error) {
         res.send('Error updating post: ' + error);
