@@ -257,6 +257,21 @@ const PostView = () => {
             </Box>
           </Box>
 
+          {post.img && (
+            <Box sx={{ mb: 4, textAlign: 'center' }}>
+              <img
+                src={post.img}
+                alt={post.title}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '500px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                }}
+              />
+            </Box>
+          )}
+
           <Box sx={{ mb: 4 }}>
             <Typography
               component="div"
