@@ -43,6 +43,11 @@ const PostView = () => {
   var user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
 
+  // Helper function to show snackbar messages
+  const showSnackbar = (message, severity = "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
 
   useEffect(() => {
     axios
@@ -100,11 +105,11 @@ const PostView = () => {
       .catch((err) => {
         console.log(err);
         if (err.response?.data?.error) {
-          alert(err.response.data.error);
+          showSnackbar(err.response.data.error);
         } else if (err.response?.data) {
-          alert(err.response.data);
+          showSnackbar(err.response.data);
         } else {
-          alert("Error processing like");
+          showSnackbar("Error processing like");
         }
       });
   };
@@ -119,12 +124,12 @@ const PostView = () => {
 
   var handleCommentSubmit = () => {
     if (!token) {
-      alert("Please login to comment");
+      showSnackbar("Please login to comment");
       return;
     }
 
     if (!comment.trim()) {
-      alert("Please enter a comment");
+      showSnackbar("Please enter a comment");
       return;
     }
 
@@ -139,13 +144,13 @@ const PostView = () => {
         )
         .then((res) => {
           console.log(res);
-          alert(res.data);
+          showSnackbar(res.data, "success");
           setComment("");
           window.location.reload();
         })
         .catch((err) => {
           console.log(err);
-          alert("Error adding comment");
+          showSnackbar("Error adding comment");
         })
         .finally(() => {
           setIsLoading(false);
@@ -159,7 +164,7 @@ const PostView = () => {
         )
         .then((res) => {
           console.log(res);
-          alert(res.data);
+          showSnackbar(res.data, "success");
           setComment("");
           setCommEdit(false);
           setEditingCommentId(null);
@@ -167,7 +172,7 @@ const PostView = () => {
         })
         .catch((err) => {
           console.log(err);
-          alert("Error updating comment");
+          showSnackbar("Error updating comment");
         })
         .finally(() => {
           setIsLoading(false);

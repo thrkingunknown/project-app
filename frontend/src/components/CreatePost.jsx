@@ -23,11 +23,11 @@ import CreateIcon from "@mui/icons-material/Create";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 const CreatePost = () => {
-  var navigate = useNavigate();
-  var location = useLocation();
-  var [data, setData] = useState({ title: "", content: "", image: "" });
-  var [isLoading, setIsLoading] = useState(false);
-  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [data, setData] = useState({ title: "", content: "", image: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [imagePreview, setImagePreview] = useState("");
   useEffect(() => {
     if (location.state !== null) {
@@ -55,12 +55,12 @@ const CreatePost = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
-      navigate("/login");
+      setSnackbar({ open: true, message: "Please login first", severity: "warning" });
+      setTimeout(() => navigate("/login"), 2000);
     }
   }, [navigate]);
 
-  var inputHandler = (e) => {
+  const inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
     console.log(data);
   };
@@ -81,7 +81,16 @@ const CreatePost = () => {
     }
   };
 
-  var submitHandler = () => {
+  const submitHandler = () => {
+    if (!data.title.trim()) {
+      setSnackbar({ open: true, message: "Please enter a post title", severity: "error" });
+      return;
+    }
+    if (!data.content.trim()) {
+      setSnackbar({ open: true, message: "Please enter post content", severity: "error" });
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "error" });
@@ -130,18 +139,19 @@ const CreatePost = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 6, mb: 4 }}>
+    <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4, md: 6 }, mb: 4, px: { xs: 2, sm: 3 } }}>
       <Fade in timeout={600}>
         <Grow in timeout={800}>
           <Paper
             elevation={0}
             sx={{
-              p: 4,
+              p: { xs: 3, sm: 4 },
               borderRadius: 3,
               border: '1px solid',
               borderColor: 'divider',
               background: 'background.paper',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+              overflow: 'hidden'
             }}
           >
             <Box sx={{ textAlign: 'center', mb: 4 }}>
@@ -184,6 +194,7 @@ const CreatePost = () => {
                 margin="normal"
                 required
                 aria-describedby="title-helper-text"
+                placeholder="Enter an engaging title for your post..."
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -197,6 +208,7 @@ const CreatePost = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     transition: 'all 0.2s ease-in-out',
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
                     '&:hover': {
                       '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: 'primary.main',
@@ -224,6 +236,7 @@ const CreatePost = () => {
                 margin="normal"
                 required
                 aria-describedby="content-helper-text"
+                placeholder="Write your post content here..."
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -237,6 +250,7 @@ const CreatePost = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     transition: 'all 0.2s ease-in-out',
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
                     '&:hover': {
                       '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: 'primary.main',
@@ -250,7 +264,7 @@ const CreatePost = () => {
                   }
                 }}
               />
-              <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
+              <Box sx={{ mt: 3, mb: 3 }}>
                 <Button
                   component="label"
                   variant="outlined"
@@ -259,6 +273,8 @@ const CreatePost = () => {
                     borderRadius: 2,
                     textTransform: 'none',
                     fontWeight: 600,
+                    px: 3,
+                    py: 1.5,
                     transition: 'all 0.2s ease-in-out',
                     '&:hover': {
                       transform: 'translateY(-1px)',
@@ -273,26 +289,87 @@ const CreatePost = () => {
                     accept="image/*"
                   />
                 </Button>
+              </Box>
 
-                {imagePreview && (
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Typography variant="subtitle1" gutterBottom>Image Preview:</Typography>
-                    <img src={imagePreview} alt="Preview" style={{ width: "300px",
-                      height: "auto",
-                      border: "1px solid #ccc",
-                      borderRadius: "8px",
-                      objectFit: "cover" }} />
+              {imagePreview && (
+                <Box
+                  sx={{
+                    mt: 2,
+                    mb: 4,
+                    textAlign: 'center',
+                    p: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    backgroundColor: (theme) =>
+                      theme.palette.mode === 'dark'
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'grey.50'
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    gutterBottom
+                    sx={{
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      mb: 2
+                    }}
+                  >
+                    Image Preview:
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      p: 1,
+                      borderRadius: 1,
+                      backgroundColor: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? 'rgba(0, 0, 0, 0.2)'
+                          : 'rgba(255, 255, 255, 0.8)'
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={imagePreview}
+                      alt="Preview"
+                      sx={{
+                        maxWidth: "100%",
+                        maxHeight: "300px",
+                        width: "auto",
+                        height: "auto",
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        objectFit: "contain",
+                        boxShadow: (theme) =>
+                          theme.palette.mode === 'dark'
+                            ? "0 4px 16px rgba(0, 0, 0, 0.3)"
+                            : "0 4px 16px rgba(0, 0, 0, 0.15)"
+                      }}
+                    />
                   </Box>
-                )}
+                </Box>
+              )}
 
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  mt: 4,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: 'stretch'
+                }}
+              >
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={submitHandler}
                   disabled={isLoading}
                   sx={{
-                    flex: 1,
-                    minWidth: 200,
+                    flex: { sm: 1 },
                     py: 1.5,
                     borderRadius: 2,
                     textTransform: 'none',
@@ -320,6 +397,7 @@ const CreatePost = () => {
                   onClick={() => navigate("/")}
                   startIcon={<CancelIcon />}
                   sx={{
+                    py: 1.5,
                     borderRadius: 2,
                     textTransform: 'none',
                     fontWeight: 600,
