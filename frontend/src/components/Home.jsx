@@ -19,11 +19,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ReactMarkdown from "react-markdown";
 
 const Home = () => {
-  var [posts, setPosts] = useState([]);
-  var [loading, setLoading] = useState(true);
-  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-  var navigate = useNavigate();
-  var user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     setLoading(true);
@@ -47,11 +47,11 @@ const Home = () => {
       });
   }, []);
 
-  var handlePostClick = (id) => {
+  const handlePostClick = (id) => {
     navigate(`/post/${id}`);
   };
 
-  var handleDelete = (id) => {
+  const handleDelete = (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "warning" });
@@ -74,7 +74,7 @@ const Home = () => {
       });
   };
 
-  var handleLike = (id) => {
+  const handleLike = (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login to like this post", severity: "warning" });
@@ -135,6 +135,7 @@ const Home = () => {
                 <Box sx={{ flex: 1 }}>
                   <Skeleton variant="text" width="90%" height={24} sx={{ mb: 1 }} />
                   <Skeleton variant="text" width="60%" height={16} sx={{ mb: 2 }} />
+                  <Skeleton variant="rectangular" width="100%" height={120} sx={{ mb: 2, borderRadius: 1 }} />
                   <Skeleton variant="text" width="100%" height={16} sx={{ mb: 1 }} />
                   <Skeleton variant="text" width="80%" height={16} sx={{ mb: 2 }} />
                   <Box sx={{ display: 'flex', gap: 2 }}>
@@ -273,6 +274,49 @@ const Home = () => {
                             {new Date(post.createdAt).toLocaleDateString()}
                           </Typography>
                         </Box>
+
+                        {post.img && (
+                          <Box
+                            sx={{
+                              mb: 2,
+                              textAlign: 'center',
+                              borderRadius: 2,
+                              overflow: 'hidden',
+                              backgroundColor: (theme) =>
+                                theme.palette.mode === 'dark'
+                                  ? 'rgba(255, 255, 255, 0.02)'
+                                  : 'rgba(0, 0, 0, 0.02)'
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={post.img}
+                              alt={post.title}
+                              sx={{
+                                maxWidth: '100%',
+                                maxHeight: '200px',
+                                width: 'auto',
+                                height: 'auto',
+                                borderRadius: 1,
+                                objectFit: 'cover',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s ease-in-out',
+                                '&:hover': {
+                                  transform: 'scale(1.02)'
+                                },
+                                boxShadow: (theme) =>
+                                  theme.palette.mode === 'dark'
+                                    ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                                    : '0 2px 8px rgba(0, 0, 0, 0.1)'
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePostClick(post._id);
+                              }}
+                            />
+                          </Box>
+                        )}
+
                         <Typography
                           component="div"
                           variant="body2"
