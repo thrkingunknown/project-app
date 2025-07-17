@@ -512,11 +512,7 @@ const Navbar = () => {
                         }
                       }}
                     >
-                      {!user.profilePicture && user.username ? (
-                        user.username.charAt(0).toUpperCase()
-                      ) : (
-                        !user.profilePicture && <PersonIcon />
-                      )}
+                      {!user.profilePicture && (user.username ? user.username.charAt(0).toUpperCase() : <PersonIcon />)}
                     </Avatar>
                   </IconButton>
                 </Tooltip>

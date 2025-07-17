@@ -38,17 +38,17 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import ReactMarkdown from "react-markdown";
 
 const PostView = () => {
-  var { id } = useParams();
-  var navigate = useNavigate();
-  var [post, setPost] = useState();
-  var [commEdit, setCommEdit] = useState(false);
-  var [editingCommentId, setEditingCommentId] = useState(null);
-  var [comment, setComment] = useState("");
-  var [isLoading, setIsLoading] = useState(false);
-  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState();
+  const [commEdit, setCommEdit] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [comment, setComment] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  var user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
 
   // Helper function to show snackbar messages
@@ -70,7 +70,7 @@ const PostView = () => {
       });
   }, [id]);
 
-  var handleDeletePost = () => {
+  const handleDeletePost = () => {
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -86,12 +86,12 @@ const PostView = () => {
       });
   };
 
-  var handlePostEdit = (postData) => {
+  const handlePostEdit = (postData) => {
     console.log(postData);
     navigate(`/create-post`, { state: postData });
   };
 
-  var likehandler = () => {
+  const likehandler = () => {
     if (!token) {
       setSnackbar({ open: true, message: "Please login to like this post", severity: "warning" });
       return;
@@ -122,7 +122,7 @@ const PostView = () => {
       });
   };
 
-  var handleCommentEdit = (commentData) => {
+  const handleCommentEdit = (commentData) => {
     console.log(commentData);
     setComment(commentData.content);
     setCommEdit(true);
@@ -130,7 +130,7 @@ const PostView = () => {
   };
 
 
-  var handleCommentSubmit = () => {
+  const handleCommentSubmit = () => {
     if (!token) {
       showSnackbar("Please login to comment");
       return;
@@ -187,7 +187,7 @@ const PostView = () => {
         });
     }
   };
-  var handleDeleteComment = (commentId) => {
+  const handleDeleteComment = (commentId) => {
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "warning" });
       return;
@@ -282,8 +282,8 @@ const PostView = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-              <Avatar src={post.author?.profilePicture} sx={{ width: 32, height: 32 }}>
-                {!post.author?.profilePicture && <PersonIcon fontSize="small" />}
+              <Avatar src={post.author?.profilePicture} sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+                {!post.author?.profilePicture && (post.author?.username ? post.author.username.charAt(0).toUpperCase() : <PersonIcon fontSize="small" />)}
               </Avatar>
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
@@ -584,8 +584,8 @@ const PostView = () => {
                 >
                   <CardContent sx={{ p: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <Avatar src={comm.author?.profilePicture} sx={{ width: 28, height: 28 }}>
-                        {!comm.author?.profilePicture && <PersonIcon fontSize="small" />}
+                      <Avatar src={comm.author?.profilePicture} sx={{ width: 28, height: 28, bgcolor: 'primary.main' }}>
+                        {!comm.author?.profilePicture && (comm.author?.username ? comm.author.username.charAt(0).toUpperCase() : <PersonIcon fontSize="small" />)}
                       </Avatar>
                       <Box>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>

@@ -18,12 +18,12 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  var { id } = useParams();
-  var navigate = useNavigate();
-  var [userData, setUserData] = useState(null);
-  var [selectedFile, setSelectedFile] = useState(null);
-  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-  var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     axios
@@ -61,10 +61,13 @@ const Profile = () => {
         )
         .then((res) => {
           setSnackbar({ open: true, message: "Profile picture updated successfully", severity: "success" });
+          const updatedUser = { ...currentUser, profilePicture: res.data.profilePicture };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
           setUserData((prevData) => ({
             ...prevData,
             user: { ...prevData.user, profilePicture: res.data.profilePicture },
           }));
+          window.location.reload();
         })
         .catch((err) => {
           console.log(err);
@@ -73,11 +76,11 @@ const Profile = () => {
     };
   };
 
-  var handlePostClick = (postId) => {
+  const handlePostClick = (postId) => {
     navigate(`/post/${postId}`);
   };
 
-  var handleDeletePost = (postId) => {
+  const handleDeletePost = (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "warning" });
@@ -152,18 +155,21 @@ const Profile = () => {
           <Avatar
             src={userData.user?.profilePicture}
             sx={{ width: 80, height: 80, mr: 2 }}
-          />
+          >
+            {userData.user?.username?.[0]}
+          </Avatar>
           <Typography variant="h5" gutterBottom>
             {userData.user?.username || "Unknown User"}
           </Typography>
         </Box>
         {currentUser.id === userData.user?._id && (
           <Box sx={{ mb: 2 }}>
-            <Input type="file" onChange={handleFileChange} />
+            <Input type="file" onChange={handleFileChange} accept="image/*" />
             <Button
               variant="contained"
               color="primary"
               onClick={handleProfilePictureUpload}
+              disabled={!selectedFile}
             >
               Upload
             </Button>
