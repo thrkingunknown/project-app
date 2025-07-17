@@ -77,6 +77,8 @@ const Navbar = () => {
       navigate(`/profile/${user.id}`);
     } else if (action === "admin") {
       navigate("/admin");
+    } else if (action === "moderation") {
+      navigate("/moderation");
     }
   };
 
@@ -113,7 +115,7 @@ const Navbar = () => {
   const userSettings = [
     { name: "Profile", action: "profile" },
     ...(user.role === "admin"
-      ? [{ name: "Admin Dashboard", action: "admin" }]
+      ? [{ name: "Admin Dashboard", action: "admin" }, { name: "Moderation", action: "moderation" }]
       : []),
     { name: "Logout", action: "logout" },
   ];
@@ -496,6 +498,7 @@ const Navbar = () => {
                   >
                     <Avatar
                       alt={user.username}
+                      src={user.profilePicture}
                       sx={{
                         bgcolor: "primary.main",
                         color: "white",
@@ -509,11 +512,7 @@ const Navbar = () => {
                         }
                       }}
                     >
-                      {user.username ? (
-                        user.username.charAt(0).toUpperCase()
-                      ) : (
-                        <PersonIcon />
-                      )}
+                      {!user.profilePicture && (user.username ? user.username.charAt(0).toUpperCase() : <PersonIcon />)}
                     </Avatar>
                   </IconButton>
                 </Tooltip>

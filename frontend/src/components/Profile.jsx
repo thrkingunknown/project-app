@@ -10,36 +10,74 @@ import {
   Box,
   Snackbar,
   Alert,
+  Avatar,
+  Input,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  var { id } = useParams();
-  var navigate = useNavigate();
-  var [userData, setUserData] = useState(null);
-  var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-  var currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/users/${id}`)
       .then((res) => {
-        console.log("user data", res.data);
         setUserData(res.data);
       })
       .catch((err) => {
-        console.log(err);
         setSnackbar({ open: true, message: "Error loading profile", severity: "error" });
       });
   }, [id]);
 
-  var handlePostClick = (postId) => {
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleProfilePictureUpload = () => {
+    if (!selectedFile) {
+      setSnackbar({ open: true, message: "Please select a file", severity: "warning" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      const token = localStorage.getItem("token");
+      axios
+        .post(
+          `${import.meta.env.VITE_BACKEND_URL}/users/${id}/profile-picture`,
+          { profilePicture: base64String },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((res) => {
+          setSnackbar({ open: true, message: "Profile picture updated successfully", severity: "success" });
+          const updatedUser = { ...currentUser, profilePicture: res.data.profilePicture };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUserData((prevData) => ({
+            ...prevData,
+            user: { ...prevData.user, profilePicture: res.data.profilePicture },
+          }));
+          window.location.reload();
+        })
+        .catch((err) => {
+          setSnackbar({ open: true, message: "Error updating profile picture", severity: "error" });
+        });
+    };
+  };
+
+  const handlePostClick = (postId) => {
     navigate(`/post/${postId}`);
   };
 
-  var handleDeletePost = (postId) => {
+  const handleDeletePost = (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       setSnackbar({ open: true, message: "Please login first", severity: "warning" });
@@ -51,7 +89,6 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log(res);
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
         setUserData(prevData => ({
           ...prevData,
@@ -59,7 +96,6 @@ const Profile = () => {
         }));
       })
       .catch((err) => {
-        console.log(err);
         setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };
@@ -110,9 +146,30 @@ const Profile = () => {
           )}
         </Box>
 
-        <Typography variant="h5" gutterBottom>
-          {userData.user?.username || "Unknown User"}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Avatar
+            src={userData.user?.profilePicture}
+            sx={{ width: 80, height: 80, mr: 2 }}
+          >
+            {userData.user?.username?.[0]}
+          </Avatar>
+          <Typography variant="h5" gutterBottom>
+            {userData.user?.username || "Unknown User"}
+          </Typography>
+        </Box>
+        {currentUser.id === userData.user?._id && (
+          <Box sx={{ mb: 2 }}>
+            <Input type="file" onChange={handleFileChange} accept="image/*" />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleProfilePictureUpload}
+              disabled={!selectedFile}
+            >
+              Upload
+            </Button>
+          </Box>
+        )}
         <Typography variant="body1" color="textSecondary" gutterBottom>
           Email: {userData.user?.email || "N/A"}
         </Typography>

@@ -1,22 +1,22 @@
 require('dotenv').config();
-var express = require('express');
-var cors = require('cors');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 require('./db');
-var User = require('../models/user');
-var Post = require('../models/post');
-var Comment = require('../models/comment');
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcrypt');
-var nodemailer = require('nodemailer');
-var crypto = require('crypto');
+const User = require('../models/user');
+const Post = require('../models/post');
+const Comment = require('../models/comment');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
-var port = 3000;
+const port = 3000;
 
-var app = express();
+const app = express();
 
-var transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
@@ -32,9 +32,9 @@ app.use(cors({
     credentials: true
 }));
 
-var sendVerificationEmail = async (email, token, username) => {
-    var verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-    var mailOptions = {
+const sendVerificationEmail = async (email, token, username) => {
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+    const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
         subject: `Welcome to ${process.env.PLATFORM_NAME} - Verify Your Email`,
@@ -54,16 +54,14 @@ var sendVerificationEmail = async (email, token, username) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Verification email sent to:', email);
     } catch (error) {
-        console.error('Error sending verification email:', error);
-        throw error;
+        throw new Error('Failed to send verification email.');
     }
 };
 
-var sendPasswordResetEmail = async (email, token, username) => {
-    var resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    var mailOptions = {
+const sendPasswordResetEmail = async (email, token, username) => {
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
         subject: `${process.env.PLATFORM_NAME} - Password Reset Request`,
@@ -83,10 +81,8 @@ var sendPasswordResetEmail = async (email, token, username) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Password reset email sent to:', email);
     } catch (error) {
-        console.error('Error sending password reset email:', error);
-        throw error;
+        throw new Error('Failed to send password reset email.');
     }
 };
 
@@ -98,36 +94,36 @@ app.get('/', (req, res) => {
     });
 });
 
-var checkAuth = (req, res, next) => {
+const checkAuth = (req, res, next) => {
     try {
-        var token = req.headers.authorization?.split(' ')[1];
+        const token = req.headers.authorization?.split(' ')[1];
         if (!token) {
-            return res.send('No token provided');
+            return res.status(401).json({ message: 'No token provided' });
         }
-        var decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {
-        res.send('Invalid token');
+        res.status(401).json({ message: 'Invalid token' });
     }
 };
 
 app.post('/register', async (req, res) => {
     try {
-        var { username, email, password, role } = req.body;
+        const { username, email, password, role } = req.body;
 
-        var existingUser = await User.findOne({ email: email });
+        const existingUser = await User.findOne({ email: email });
         if (existingUser) {
-            return res.send('User with this email already exists');
+            return res.status(409).json({ message: 'User with this email already exists' });
         }
 
-        var hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_ROUNDS) || 10);
+        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_ROUNDS) || 10);
 
 
-        var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-        var user = new User({
+        const user = new User({
             username: username,
             email: email,
             password: hashedPassword,
@@ -141,31 +137,30 @@ app.post('/register', async (req, res) => {
 
         await sendVerificationEmail(email, verificationToken, username);
 
-        res.send('User registered successfully! Please check your email to verify your account.');
+        res.status(201).json({ message: 'User registered successfully! Please check your email to verify your account.' });
     } catch (error) {
-        console.log('Registration error:', error);
-        res.send('Error registering user: ' + error);
+        res.status(500).json({ message: 'Error registering user', error: error.message });
     }
 });
 
 app.post('/login', async (req, res) => {
     try {
-        var { email, password } = req.body;
-        var user = await User.findOne({ email: email });
+        const { email, password } = req.body;
+        const user = await User.findOne({ email: email });
         if (!user) {
-            return res.send('User not found');
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        var isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.send('Invalid password');
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         if (!user.isVerified) {
-            return res.send('Please verify your email before logging in. Check your inbox for verification link.');
+            return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox for verification link.' });
         }
 
-        var token = jwt.sign({
+        const token = jwt.sign({
             id: user._id,
             username: user.username,
             role: user.role
@@ -178,30 +173,30 @@ app.post('/login', async (req, res) => {
                 username: user.username,
                 role: user.role,
                 email: user.email,
-                isVerified: user.isVerified
+                isVerified: user.isVerified,
+                profilePicture: user.profilePicture
             }
         });
     } catch (error) {
-        console.log('Login error:', error);
-        res.send('Error logging in: ' + error);
+        res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 });
 
 app.get('/verify-email', async (req, res) => {
     try {
-        var { token } = req.query;
+        const { token } = req.query;
 
         if (!token) {
-            return res.send('Verification token is required');
+            return res.status(400).json({ message: 'Verification token is required' });
         }
         
-        var user = await User.findOne({
+        const user = await User.findOne({
             verificationToken: token,
             verificationTokenExpires: { $gt: Date.now() }
         });
 
         if (!user) {
-            return res.send('Invalid or expired verification token');
+            return res.status(400).json({ message: 'Invalid or expired verification token' });
         }
 
         user.isVerified = true;
@@ -209,28 +204,27 @@ app.get('/verify-email', async (req, res) => {
         user.verificationTokenExpires = undefined;
         await user.save();
 
-        res.send('Email verified successfully! You can now login to your account.');
+        res.status(200).json({ message: 'Email verified successfully! You can now login to your account.' });
     } catch (error) {
-        console.log('Email verification error:', error);
-        res.send('Error verifying email: ' + error);
+        res.status(500).json({ message: 'Error verifying email', error: error.message });
     }
 });
 
 app.post('/resend-verification', async (req, res) => {
     try {
-        var { email } = req.body;
+        const { email } = req.body;
 
-        var user = await User.findOne({ email: email });
+        const user = await User.findOne({ email: email });
         if (!user) {
-            return res.send('User not found');
+            return res.status(404).json({ message: 'User not found' });
         }
 
         if (user.isVerified) {
-            return res.send('Email is already verified');
+            return res.status(400).json({ message: 'Email is already verified' });
         }
 
-        var verificationToken = crypto.randomBytes(32).toString('hex');
-        var verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         user.verificationToken = verificationToken;
         user.verificationTokenExpires = verificationTokenExpires;
@@ -238,39 +232,38 @@ app.post('/resend-verification', async (req, res) => {
 
         await sendVerificationEmail(email, verificationToken, user.username);
 
-        res.send('Verification email sent! Please check your inbox.');
+        res.status(200).json({ message: 'Verification email sent! Please check your inbox.' });
     } catch (error) {
-        console.log('Resend verification error:', error);
-        res.send('Error sending verification email: ' + error);
+        res.status(500).json({ message: 'Error sending verification email', error: error.message });
     }
 });
 
-var forgotPasswordAttempts = new Map();
+const forgotPasswordAttempts = new Map();
 
 app.post('/forgot-password', async (req, res) => {
     try {
-        var { email } = req.body;
+        const { email } = req.body;
 
         if (!email) {
-            return res.send('Email is required');
+            return res.status(400).json({ message: 'Email is required' });
         }
 
-        var now = Date.now();
-        var attempts = forgotPasswordAttempts.get(email) || [];
-        var recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000);
+        const now = Date.now();
+        const attempts = forgotPasswordAttempts.get(email) || [];
+        const recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000);
 
         if (recentAttempts.length >= 3) {
-            return res.send('Too many password reset attempts. Please try again later.');
+            return res.status(429).json({ message: 'Too many password reset attempts. Please try again later.' });
         }
 
         recentAttempts.push(now);
         forgotPasswordAttempts.set(email, recentAttempts);
 
-        var user = await User.findOne({ email: email });
+        const user = await User.findOne({ email: email });
 
         if (user) {
-            var resetToken = crypto.randomBytes(32).toString('hex');
-            var resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
 
             user.resetPasswordToken = resetToken;
             user.resetPasswordTokenExpires = resetTokenExpires;
@@ -279,51 +272,49 @@ app.post('/forgot-password', async (req, res) => {
             await sendPasswordResetEmail(email, resetToken, user.username);
         }
 
-        res.send('If an account with that email exists, a password reset link has been sent.');
+        res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
     } catch (error) {
-        console.log('Forgot password error:', error);
-        res.send('Error sending password reset email: ' + error);
+        res.status(500).json({ message: 'Error sending password reset email', error: error.message });
     }
 });
 
 app.post('/reset-password', async (req, res) => {
     try {
-        var { token, newPassword } = req.body;
+        const { token, newPassword } = req.body;
 
         if (!token || !newPassword) {
-            return res.send('Token and new password are required');
+            return res.status(400).json({ message: 'Token and new password are required' });
         }
 
         if (newPassword.length < 6) {
-            return res.send('Password must be at least 6 characters long');
+            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
         }
 
-        var user = await User.findOne({
+        const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordTokenExpires: { $gt: Date.now() }
         });
 
         if (!user) {
-            return res.send('Invalid or expired reset token');
+            return res.status(400).json({ message: 'Invalid or expired reset token' });
         }
 
-        var hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS) || 10);
+        const hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS) || 10);
 
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordTokenExpires = undefined;
         await user.save();
 
-        res.send('Password reset successfully! You can now login with your new password.');
+        res.status(200).json({ message: 'Password reset successfully! You can now login with your new password.' });
     } catch (error) {
-        console.log('Reset password error:', error);
-        res.send('Error resetting password: ' + error);
+        res.status(500).json({ message: 'Error resetting password', error: error.message });
     }
 });
 
 app.get('/posts', async (req, res) => {
     try {
-        var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
+        const posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
         const postsWithImages = posts.map(post => {
             const postObject = post.toObject();
             if (postObject.img && postObject.img.data) {
@@ -333,7 +324,6 @@ app.get('/posts', async (req, res) => {
         });
         res.json(postsWithImages);
     } catch (error) {
-        console.error('Error getting posts:', error);
         res.status(500).json({ error: 'Error getting posts', message: error.message });
     }
 });
@@ -358,32 +348,32 @@ app.post('/posts', checkAuth, async (req, res) => {
         }
 
         await post.save();
-        res.send('Post created successfully');
+        res.status(201).json({ message: 'Post created successfully' });
     } catch (error) {
-        res.send('Error creating post: ' + error);
+        res.status(500).json({ message: 'Error creating post', error: error.message });
     }
 });
 
 app.get('/posts/:id', async (req, res) => {
     try {
-        var post = await Post.findById(req.params.id)
-            .populate('author', 'username')
+        const post = await Post.findById(req.params.id)
+            .populate('author', 'username profilePicture')
             .populate({
                 path: 'comments',
-                populate: { path: 'author', select: 'username' }
+                populate: { path: 'author', select: 'username profilePicture' }
             });
         
         if (post) {
-            let postObject = post.toObject();
+            const postObject = post.toObject();
             if (postObject.img && postObject.img.data) {
                 postObject.img = `data:${postObject.img.contentType};base64,${postObject.img.data.toString('base64')}`;
             }
-            res.send(postObject);
+            res.status(200).json(postObject);
         } else {
-            res.status(404).send('Post not found');
+            res.status(404).json({ message: 'Post not found' });
         }
     } catch (error) {
-        res.send('Error getting post: ' + error);
+        res.status(500).json({ message: 'Error getting post', error: error.message });
     }
 });
 
@@ -393,7 +383,7 @@ app.put('/posts/:id', checkAuth, async (req, res) => {
         const post = await Post.findById(req.params.id);
 
         if (post.author.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.send('Not authorized');
+            return res.status(403).json({ message: 'Not authorized' });
         }
 
         post.title = title;
@@ -410,36 +400,36 @@ app.put('/posts/:id', checkAuth, async (req, res) => {
         }
 
         await post.save();
-        res.send('Post updated successfully');
+        res.status(200).json({ message: 'Post updated successfully' });
     } catch (error) {
-        res.send('Error updating post: ' + error);
+        res.status(500).json({ message: 'Error updating post', error: error.message });
     }
 });
 
 app.delete('/posts/:id', checkAuth, async (req, res) => {
     try {
-        var post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id);
         if (post.author.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.send('Not authorized');
+            return res.status(403).json({ message: 'Not authorized' });
         }
         await Post.findByIdAndDelete(req.params.id);
-        res.send('Post deleted successfully');
+        res.status(200).json({ message: 'Post deleted successfully' });
     } catch (error) {
-        res.send('Error deleting post: ' + error);
+        res.status(500).json({ message: 'Error deleting post', error: error.message });
     }
 });
 
 app.get('/search', async (req, res) => {
     try {
-        var { q } = req.query;
+        const { q } = req.query;
 
         if (!q || q.trim() === '') {
             return res.json([]);
         }
 
-        var searchRegex = new RegExp(q.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+        const searchRegex = new RegExp(q.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
 
-        var posts = await Post.find({
+        const posts = await Post.find({
             $or: [
                 { title: { $regex: searchRegex } },
                 { content: { $regex: searchRegex } }
@@ -450,14 +440,13 @@ app.get('/search', async (req, res) => {
 
         res.json(posts);
     } catch (error) {
-        console.error('Error searching posts:', error);
         res.status(500).json({ error: 'Error searching posts', message: error.message });
     }
 });
 
 app.post('/posts/:id/comments', checkAuth, async (req, res) => {
     try {
-        var comment = new Comment({
+        const comment = new Comment({
             content: req.body.content,
             author: req.user.id,
             post: req.params.id
@@ -468,75 +457,75 @@ app.post('/posts/:id/comments', checkAuth, async (req, res) => {
             $push: { comments: comment._id }
         });
 
-        res.send('Comment added successfully');
+        res.status(201).json({ message: 'Comment added successfully' });
     } catch (error) {
-        res.send('Error adding comment: ' + error);
+        res.status(500).json({ message: 'Error adding comment', error: error.message });
     }
 });
 
 app.delete('/comments/:id', checkAuth, async (req, res) => {
     try {
-        var comment = await Comment.findById(req.params.id);
+        const comment = await Comment.findById(req.params.id);
         if (comment.author.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.send('Not authorized');
+            return res.status(403).json({ message: 'Not authorized' });
         }
         await Comment.findByIdAndDelete(req.params.id);
-        res.send('Comment deleted successfully');
+        res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
-        res.send('Error deleting comment: ' + error);
+        res.status(500).json({ message: 'Error deleting comment', error: error.message });
     }
 });
 
 app.put('/comments/:id', checkAuth, async (req, res) => {
     try {
-        var comment = await Comment.findById(req.params.id);
+        const comment = await Comment.findById(req.params.id);
         if (comment.author.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.send('Not authorized');
+            return res.status(403).json({ message: 'Not authorized' });
         }
         await Comment.findByIdAndUpdate(req.params.id, req.body);
-        res.send('Comment updated successfully');
+        res.status(200).json({ message: 'Comment updated successfully' });
     } catch (error) {
-        res.send('Error updating comment: ' + error);
+        res.status(500).json({ message: 'Error updating comment', error: error.message });
     }
 });
 app.get('/users', checkAuth, async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
-            return res.send('Admin access required');
+            return res.status(403).json({ message: 'Admin access required' });
         }
-        var users = await User.find().select('-password');
-        res.send(users);
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
     } catch (error) {
-        res.send('Error getting users: ' + error);
+        res.status(500).json({ message: 'Error getting users', error: error.message });
     }
 });
 
 app.get('/users/:id', async (req, res) => {
     try {
-        var user = await User.findById(req.params.id).select('-password');
-        var posts = await Post.find({ author: req.params.id }).populate('author', 'username');
-        res.send({ user: user, posts: posts });
+        const user = await User.findById(req.params.id).select('-password');
+        const posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
+        res.status(200).json({ user: user, posts: posts });
     } catch (error) {
-        res.send('Error getting user: ' + error);
+        res.status(500).json({ message: 'Error getting user', error: error.message });
     }
 });
 
 app.delete('/users/:id', checkAuth, async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
-            return res.send('Admin access required');
+            return res.status(403).json({ message: 'Admin access required' });
         }
         await User.findByIdAndDelete(req.params.id);
-        res.send('User deleted successfully');
+        res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
-        res.send('Error deleting user: ' + error);
+        res.status(500).json({ message: 'Error deleting user', error: error.message });
     }
 });
 
 app.put('/profile', checkAuth, async (req, res) => {
     try {
-        var { username, password } = req.body;
-        var userId = req.user.id;
+        const { username, password } = req.body;
+        const userId = req.user.id;
 
         if (!username || username.trim() === '') {
             return res.status(400).json({ message: 'Username is required' });
@@ -550,13 +539,13 @@ app.put('/profile', checkAuth, async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters long' });
         }
 
-        var user = await User.findById(userId);
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         if (username.trim() !== user.username) {
-            var existingUser = await User.findOne({ username: username.trim() });
+            const existingUser = await User.findOne({ username: username.trim() });
             if (existingUser && existingUser._id.toString() !== userId) {
                 return res.status(400).json({ message: 'Username already taken' });
             }
@@ -564,7 +553,7 @@ app.put('/profile', checkAuth, async (req, res) => {
         }
 
         if (password && password.trim()) {
-            var hashedPassword = await bcrypt.hash(password.trim(), parseInt(process.env.BCRYPT_ROUNDS) || 10);
+            const hashedPassword = await bcrypt.hash(password.trim(), parseInt(process.env.BCRYPT_ROUNDS) || 10);
             user.password = hashedPassword;
         }
 
@@ -581,8 +570,30 @@ app.put('/profile', checkAuth, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Error updating profile: ' + error.message });
+    }
+});
+
+app.post('/users/:id/profile-picture', checkAuth, async (req, res) => {
+    try {
+        const { profilePicture } = req.body;
+        const userId = req.params.id;
+
+        if (req.user.id !== userId && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.profilePicture = profilePicture;
+        await user.save();
+
+        res.status(200).json({ message: 'Profile picture updated successfully', profilePicture: user.profilePicture });
+    } catch (error) {
+        res.status(500).send('Error updating profile picture: ' + error);
     }
 });
 app.post("/posts/:id/like", checkAuth, async (req, res) => {
@@ -615,9 +626,117 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
         action: 'liked'
       });
     }
+    } catch (error) {
+        res.status(500).json({ error: 'Error processing like: ' + error.message });
+    }
+});
+
+app.post('/posts/:id/report', checkAuth, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).json({ message: 'Reason for reporting is required' });
+    }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    if (post.author.toString() === req.user.id) {
+      return res.status(400).json({ message: 'You cannot report your own post' });
+    }
+
+    const existingReport = post.reports.find(report => report.user.toString() === req.user.id);
+    if (existingReport) {
+      return res.status(400).json({ message: 'You have already reported this post' });
+    }
+
+    post.reports.push({ user: req.user.id, reason });
+    await post.save();
+
+    res.status(200).json({ message: 'Post reported successfully' });
   } catch (error) {
-    console.error('Error liking/unliking post:', error);
-    res.status(500).json({ error: 'Error processing like: ' + error.message });
+    res.status(500).send('Error reporting post: ' + error);
+  }
+});
+
+app.get('/reported-posts', checkAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const posts = await Post.aggregate([
+      { $match: { "reports.0": { $exists: true } } },
+      {
+        $addFields: {
+          reportCount: { $size: "$reports" }
+        }
+      },
+      { $sort: { reportCount: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author'
+        }
+      },
+      { $unwind: '$author' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reports.user',
+          foreignField: '_id',
+          as: 'reportUsers'
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          img: 1,
+          createdAt: 1,
+          likes: 1,
+          likedBy: 1,
+          reports: 1,
+          'author.username': 1,
+          'author.profilePicture': 1,
+          reportCount: 1,
+          reportUsers: {
+            _id: 1,
+            username: 1
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting reported posts', error: error.message });
+  }
+});
+
+app.delete('/posts/:postId/reports/:reportId', checkAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { postId, reportId } = req.params;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    post.reports.pull({ _id: reportId });
+    await post.save();
+
+    res.status(200).json({ message: 'Report removed successfully' });
+  } catch (error) {
+    res.status(500).send('Error removing report: ' + error);
   }
 });
 
