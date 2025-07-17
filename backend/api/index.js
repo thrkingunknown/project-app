@@ -672,7 +672,7 @@ app.post('/posts/:id/report', checkAuth, async (req, res) => {
     res.send('Post reported successfully');
   } catch (error) {
     console.error('Error reporting post:', error);
-    res.status(500).send('Error reporting post: ' + error);
+res.status(500).json({ message: 'Error reporting post' });
   }
 });
 
