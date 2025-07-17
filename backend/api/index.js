@@ -606,7 +606,7 @@ app.post('/users/:id/profile-picture', checkAuth, async (req, res) => {
 
         res.send({ message: 'Profile picture updated successfully', profilePicture: user.profilePicture });
     } catch (error) {
-        res.status(500).send('Error updating profile picture: ' + error);
+res.status(500).json({ message: 'Error updating profile picture' });
     }
 });
 app.post("/posts/:id/like", checkAuth, async (req, res) => {
