@@ -714,7 +714,7 @@ app.delete('/posts/:postId/reports/:reportId', checkAuth, async (req, res) => {
     res.send('Report removed successfully');
   } catch (error) {
     console.error('Error removing report:', error);
-    res.status(500).send('Error removing report: ' + error);
+res.status(500).json({ message: 'Error removing report' });
   }
 });
 
