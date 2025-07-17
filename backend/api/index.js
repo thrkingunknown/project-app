@@ -606,7 +606,7 @@ app.post('/users/:id/profile-picture', checkAuth, async (req, res) => {
 
         res.status(200).json({ message: 'Profile picture updated successfully', profilePicture: user.profilePicture });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile picture', error: error.message });
+        res.status(500).send('Error updating profile picture: ' + error);
     }
 });
 app.post("/posts/:id/like", checkAuth, async (req, res) => {
@@ -672,7 +672,7 @@ app.post('/posts/:id/report', checkAuth, async (req, res) => {
     res.status(200).json({ message: 'Post reported successfully' });
   } catch (error) {
     console.error('Error reporting post:', error);
-    res.status(500).json({ message: 'Error reporting post', error: error.message });
+    res.status(500).send('Error reporting post: ' + error);
   }
 });
 
@@ -691,7 +691,7 @@ app.get('/reported-posts', checkAuth, async (req, res) => {
     res.status(200).json(sortedPosts);
   } catch (error) {
     console.error('Error getting reported posts:', error);
-    res.status(500).json({ message: 'Error getting reported posts', error: error.message });
+    res.status(500).send('Error getting reported posts: ' + error);
   }
 });
 
@@ -714,7 +714,7 @@ app.delete('/posts/:postId/reports/:reportId', checkAuth, async (req, res) => {
     res.status(200).json({ message: 'Report removed successfully' });
   } catch (error) {
     console.error('Error removing report:', error);
-    res.status(500).json({ message: 'Error removing report', error: error.message });
+    res.status(500).send('Error removing report: ' + error);
   }
 });
 
