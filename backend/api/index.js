@@ -367,7 +367,7 @@ app.post('/posts', checkAuth, async (req, res) => {
 
 app.get('/posts/:id', async (req, res) => {
     try {
-        var post = await Post.findById(req.params.id)
+        const post = await Post.findById(req.params.id)
             .populate('author', 'username profilePicture')
             .populate({
                 path: 'comments',
