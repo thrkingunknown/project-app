@@ -324,7 +324,7 @@ app.post('/reset-password', async (req, res) => {
 
 app.get('/posts', async (req, res) => {
     try {
-        var posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
+        const posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
         const postsWithImages = posts.map(post => {
             const postObject = post.toObject();
             if (postObject.img && postObject.img.data) {
