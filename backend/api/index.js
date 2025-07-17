@@ -645,4 +645,77 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
   }
 });
 
+app.post('/posts/:id/report', checkAuth, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).send('Reason for reporting is required');
+    }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    if (post.author.toString() === req.user.id) {
+      return res.status(400).send('You cannot report your own post');
+    }
+
+    const existingReport = post.reports.find(report => report.user.toString() === req.user.id);
+    if (existingReport) {
+      return res.status(400).send('You have already reported this post');
+    }
+
+    post.reports.push({ user: req.user.id, reason });
+    await post.save();
+
+    res.send('Post reported successfully');
+  } catch (error) {
+    console.error('Error reporting post:', error);
+    res.status(500).send('Error reporting post: ' + error);
+  }
+});
+
+app.get('/reported-posts', checkAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).send('Admin access required');
+    }
+
+    const posts = await Post.find({ "reports.0": { $exists: true } })
+      .populate('author', 'username profilePicture')
+      .populate('reports.user', 'username');
+
+    const sortedPosts = posts.sort((a, b) => b.reports.length - a.reports.length);
+
+    res.json(sortedPosts);
+  } catch (error) {
+    console.error('Error getting reported posts:', error);
+    res.status(500).send('Error getting reported posts: ' + error);
+  }
+});
+
+app.delete('/posts/:postId/reports/:reportId', checkAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).send('Admin access required');
+    }
+
+    const { postId, reportId } = req.params;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    post.reports.pull({ _id: reportId });
+    await post.save();
+
+    res.send('Report removed successfully');
+  } catch (error) {
+    console.error('Error removing report:', error);
+    res.status(500).send('Error removing report: ' + error);
+  }
+});
+
 module.exports = app;

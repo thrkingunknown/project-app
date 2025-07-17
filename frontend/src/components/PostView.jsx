@@ -17,6 +17,11 @@ import {
   Alert,
   Snackbar,
   InputAdornment,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -26,6 +31,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ReportIcon from "@mui/icons-material/Report";
 import CommentIcon from "@mui/icons-material/Comment";
 import SendIcon from "@mui/icons-material/Send";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -40,6 +46,8 @@ const PostView = () => {
   var [comment, setComment] = useState("");
   var [isLoading, setIsLoading] = useState(false);
   var [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   var user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
 
@@ -200,6 +208,35 @@ const PostView = () => {
       .catch((err) => {
         console.log(err);
         setSnackbar({ open: true, message: "Error deleting comment", severity: "error" });
+      });
+  };
+
+  const handleReportPost = () => {
+    if (!token) {
+      showSnackbar("Please login to report this post", "warning");
+      return;
+    }
+    setReportDialogOpen(true);
+  };
+
+  const handleReportSubmit = () => {
+    if (!reportReason.trim()) {
+      showSnackbar("Please provide a reason for the report");
+      return;
+    }
+    axios
+      .post(
+        `${import.meta.env.VITE_BACKEND_URL}/posts/${id}/report`,
+        { reason: reportReason },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then((res) => {
+        showSnackbar("Post reported successfully", "success");
+        setReportDialogOpen(false);
+        setReportReason("");
+      })
+      .catch((err) => {
+        showSnackbar(err.response?.data || "Error reporting post");
       });
   };
 
@@ -387,6 +424,26 @@ const PostView = () => {
                 Edit
               </Button>
             )}
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<ReportIcon />}
+              onClick={handleReportPost}
+              disabled={!token}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                  backgroundColor: 'warning.main',
+                  color: 'white'
+                }
+              }}
+            >
+              Report
+            </Button>
           </Box>
         </Paper>
       </Fade>
@@ -633,6 +690,29 @@ const PostView = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <Dialog open={reportDialogOpen} onClose={() => setReportDialogOpen(false)}>
+        <DialogTitle>Report Post</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please provide a reason for reporting this post. Your report will be reviewed by an administrator.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="reason"
+            label="Reason"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReportDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleReportSubmit}>Submit Report</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

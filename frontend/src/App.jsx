@@ -14,6 +14,7 @@ import ResendVerification from "./components/ResendVerification.jsx";
 import SearchResults from "./components/SearchResults.jsx";
 import ForgotPasswordEmail from "./components/ForgotPasswordEmail.jsx";
 import ForgotPasswordReset from "./components/ForgotPasswordReset.jsx";
+import Moderation from "./components/Moderation.jsx";
 import { Routes, Route } from "react-router-dom";
 import ExternalRedirect from "./components/ExternalRedirect.jsx";
 
@@ -47,6 +48,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordEmail />} />
 
         <Route path="/reset-password" element={<ForgotPasswordReset />} />
+
+        <Route path="/moderation" element={<Moderation />} />
 
         <Route
           path="*"
