@@ -691,7 +691,7 @@ app.get('/reported-posts', checkAuth, async (req, res) => {
     res.json(sortedPosts);
   } catch (error) {
     console.error('Error getting reported posts:', error);
-    res.status(500).send('Error getting reported posts: ' + error);
+res.status(500).json({ message: 'Error getting reported posts' });
   }
 });
 
