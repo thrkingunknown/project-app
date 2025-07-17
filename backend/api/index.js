@@ -515,7 +515,7 @@ app.get('/users', checkAuth, async (req, res) => {
 app.get('/users/:id', async (req, res) => {
     try {
         var user = await User.findById(req.params.id).select('-password');
-        var posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
+        const posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
         res.send({ user: user, posts: posts });
     } catch (error) {
         res.send('Error getting user: ' + error);
