@@ -15,11 +15,9 @@ const Moderation = () => {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/reported-posts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('API Response:', response.data);
       setReportedPosts(response.data);
     } catch (err) {
       setError('Failed to fetch reported posts. You may not have the required permissions.');
-      console.error(err);
     }
   };
 
@@ -36,7 +34,6 @@ const Moderation = () => {
       });
       fetchReportedPosts(); // Refresh the list after removing a report
     } catch (err) {
-      console.error('Failed to remove report:', err);
       setError('Failed to remove report.');
     }
   };
@@ -82,12 +79,14 @@ const Moderation = () => {
                 <Typography>View Reports</Typography>
               </AccordionSummary>
                   <AccordionDetails>
-                {post.reports.map((report) => (
+                {post.reports.map((report) => {
+                  const reportingUser = post.reportUsers.find(u => u._id === report.user);
+                  return (
                   <Box key={report._id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, p: 1, borderBottom: '1px solid #eee' }}>
                     <Box>
                       <Typography variant="body2"><strong>Reason:</strong> {report.reason}</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Reported by: {report.user ? report.user.username : 'Unknown User'} on {new Date(report.createdAt).toLocaleDateString()}
+                        Reported by: {reportingUser ? reportingUser.username : 'Unknown User'} on {new Date(report.createdAt).toLocaleDateString()}
                       </Typography>
                     </Box>
                     <Button
@@ -100,7 +99,7 @@ const Moderation = () => {
                       Remove
                     </Button>
                   </Box>
-                ))}
+                )})}
               </AccordionDetails>
             </Accordion>
           </Paper>

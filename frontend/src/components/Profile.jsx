@@ -29,11 +29,9 @@ const Profile = () => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/users/${id}`)
       .then((res) => {
-        console.log("user data", res.data);
         setUserData(res.data);
       })
       .catch((err) => {
-        console.log(err);
         setSnackbar({ open: true, message: "Error loading profile", severity: "error" });
       });
   }, [id]);
@@ -70,7 +68,6 @@ const Profile = () => {
           window.location.reload();
         })
         .catch((err) => {
-          console.log(err);
           setSnackbar({ open: true, message: "Error updating profile picture", severity: "error" });
         });
     };
@@ -92,7 +89,6 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log(res);
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
         setUserData(prevData => ({
           ...prevData,
@@ -100,7 +96,6 @@ const Profile = () => {
         }));
       })
       .catch((err) => {
-        console.log(err);
         setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
       });
   };

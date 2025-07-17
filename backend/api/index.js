@@ -54,9 +54,7 @@ const sendVerificationEmail = async (email, token, username) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Verification email sent to:', email);
     } catch (error) {
-        console.error('Error sending verification email:', error);
         throw new Error('Failed to send verification email.');
     }
 };
@@ -83,9 +81,7 @@ const sendPasswordResetEmail = async (email, token, username) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Password reset email sent to:', email);
     } catch (error) {
-        console.error('Error sending password reset email:', error);
         throw new Error('Failed to send password reset email.');
     }
 };
@@ -143,7 +139,6 @@ app.post('/register', async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully! Please check your email to verify your account.' });
     } catch (error) {
-        console.log('Registration error:', error);
         res.status(500).json({ message: 'Error registering user', error: error.message });
     }
 });
@@ -183,7 +178,6 @@ app.post('/login', async (req, res) => {
             }
         });
     } catch (error) {
-        console.log('Login error:', error);
         res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 });
@@ -212,7 +206,6 @@ app.get('/verify-email', async (req, res) => {
 
         res.status(200).json({ message: 'Email verified successfully! You can now login to your account.' });
     } catch (error) {
-        console.log('Email verification error:', error);
         res.status(500).json({ message: 'Error verifying email', error: error.message });
     }
 });
@@ -241,7 +234,6 @@ app.post('/resend-verification', async (req, res) => {
 
         res.status(200).json({ message: 'Verification email sent! Please check your inbox.' });
     } catch (error) {
-        console.log('Resend verification error:', error);
         res.status(500).json({ message: 'Error sending verification email', error: error.message });
     }
 });
@@ -282,7 +274,6 @@ app.post('/forgot-password', async (req, res) => {
 
         res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
     } catch (error) {
-        console.log('Forgot password error:', error);
         res.status(500).json({ message: 'Error sending password reset email', error: error.message });
     }
 });
@@ -317,7 +308,6 @@ app.post('/reset-password', async (req, res) => {
 
         res.status(200).json({ message: 'Password reset successfully! You can now login with your new password.' });
     } catch (error) {
-        console.log('Reset password error:', error);
         res.status(500).json({ message: 'Error resetting password', error: error.message });
     }
 });
@@ -334,7 +324,6 @@ app.get('/posts', async (req, res) => {
         });
         res.json(postsWithImages);
     } catch (error) {
-        console.error('Error getting posts:', error);
         res.status(500).json({ error: 'Error getting posts', message: error.message });
     }
 });
@@ -451,7 +440,6 @@ app.get('/search', async (req, res) => {
 
         res.json(posts);
     } catch (error) {
-        console.error('Error searching posts:', error);
         res.status(500).json({ error: 'Error searching posts', message: error.message });
     }
 });
@@ -582,7 +570,6 @@ app.put('/profile', checkAuth, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Error updating profile: ' + error.message });
     }
 });
@@ -639,10 +626,9 @@ app.post("/posts/:id/like", checkAuth, async (req, res) => {
         action: 'liked'
       });
     }
-  } catch (error) {
-    console.error('Error liking/unliking post:', error);
-    res.status(500).json({ error: 'Error processing like: ' + error.message });
-  }
+    } catch (error) {
+        res.status(500).json({ error: 'Error processing like: ' + error.message });
+    }
 });
 
 app.post('/posts/:id/report', checkAuth, async (req, res) => {
@@ -671,7 +657,6 @@ app.post('/posts/:id/report', checkAuth, async (req, res) => {
 
     res.status(200).json({ message: 'Post reported successfully' });
   } catch (error) {
-    console.error('Error reporting post:', error);
     res.status(500).send('Error reporting post: ' + error);
   }
 });
@@ -682,16 +667,54 @@ app.get('/reported-posts', checkAuth, async (req, res) => {
       return res.status(403).json({ message: 'Admin access required' });
     }
 
-    const posts = await Post.find({ "reports.0": { $exists: true } })
-      .populate('author', 'username profilePicture')
-      .populate('reports.user', 'username');
+    const posts = await Post.aggregate([
+      { $match: { "reports.0": { $exists: true } } },
+      {
+        $addFields: {
+          reportCount: { $size: "$reports" }
+        }
+      },
+      { $sort: { reportCount: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author'
+        }
+      },
+      { $unwind: '$author' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reports.user',
+          foreignField: '_id',
+          as: 'reportUsers'
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          img: 1,
+          createdAt: 1,
+          likes: 1,
+          likedBy: 1,
+          reports: 1,
+          'author.username': 1,
+          'author.profilePicture': 1,
+          reportCount: 1,
+          reportUsers: {
+            _id: 1,
+            username: 1
+          }
+        }
+      }
+    ]);
 
-    const sortedPosts = posts.sort((a, b) => b.reports.length - a.reports.length);
-
-    res.status(200).json(sortedPosts);
+    res.status(200).json(posts);
   } catch (error) {
-    console.error('Error getting reported posts:', error);
-    res.status(500).send('Error getting reported posts: ' + error);
+    res.status(500).json({ message: 'Error getting reported posts', error: error.message });
   }
 });
 
@@ -713,7 +736,6 @@ app.delete('/posts/:postId/reports/:reportId', checkAuth, async (req, res) => {
 
     res.status(200).json({ message: 'Report removed successfully' });
   } catch (error) {
-    console.error('Error removing report:', error);
     res.status(500).send('Error removing report: ' + error);
   }
 });
