@@ -324,7 +324,7 @@ app.post('/reset-password', async (req, res) => {
 
 app.get('/posts', async (req, res) => {
     try {
-        var posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
+        const posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
         const postsWithImages = posts.map(post => {
             const postObject = post.toObject();
             if (postObject.img && postObject.img.data) {
@@ -367,7 +367,7 @@ app.post('/posts', checkAuth, async (req, res) => {
 
 app.get('/posts/:id', async (req, res) => {
     try {
-        var post = await Post.findById(req.params.id)
+        const post = await Post.findById(req.params.id)
             .populate('author', 'username profilePicture')
             .populate({
                 path: 'comments',
@@ -515,7 +515,7 @@ app.get('/users', checkAuth, async (req, res) => {
 app.get('/users/:id', async (req, res) => {
     try {
         var user = await User.findById(req.params.id).select('-password');
-        var posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
+        const posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
         res.send({ user: user, posts: posts });
     } catch (error) {
         res.send('Error getting user: ' + error);
