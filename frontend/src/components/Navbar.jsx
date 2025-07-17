@@ -496,6 +496,7 @@ const Navbar = () => {
                   >
                     <Avatar
                       alt={user.username}
+                      src={user.profilePicture}
                       sx={{
                         bgcolor: "primary.main",
                         color: "white",
@@ -509,10 +510,10 @@ const Navbar = () => {
                         }
                       }}
                     >
-                      {user.username ? (
+                      {!user.profilePicture && user.username ? (
                         user.username.charAt(0).toUpperCase()
                       ) : (
-                        <PersonIcon />
+                        !user.profilePicture && <PersonIcon />
                       )}
                     </Avatar>
                   </IconButton>

@@ -245,8 +245,8 @@ const PostView = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-              <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
-                <PersonIcon fontSize="small" />
+              <Avatar src={post.author?.profilePicture} sx={{ width: 32, height: 32 }}>
+                {!post.author?.profilePicture && <PersonIcon fontSize="small" />}
               </Avatar>
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
@@ -527,8 +527,8 @@ const PostView = () => {
                 >
                   <CardContent sx={{ p: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <Avatar sx={{ bgcolor: 'primary.main', width: 28, height: 28 }}>
-                        <PersonIcon fontSize="small" />
+                      <Avatar src={comm.author?.profilePicture} sx={{ width: 28, height: 28 }}>
+                        {!comm.author?.profilePicture && <PersonIcon fontSize="small" />}
                       </Avatar>
                       <Box>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>

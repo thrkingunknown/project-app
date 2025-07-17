@@ -178,7 +178,8 @@ app.post('/login', async (req, res) => {
                 username: user.username,
                 role: user.role,
                 email: user.email,
-                isVerified: user.isVerified
+                isVerified: user.isVerified,
+                profilePicture: user.profilePicture
             }
         });
     } catch (error) {
@@ -323,7 +324,7 @@ app.post('/reset-password', async (req, res) => {
 
 app.get('/posts', async (req, res) => {
     try {
-        var posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
+        var posts = await Post.find().populate('author', 'username profilePicture').sort({ createdAt: -1 });
         const postsWithImages = posts.map(post => {
             const postObject = post.toObject();
             if (postObject.img && postObject.img.data) {
@@ -367,10 +368,10 @@ app.post('/posts', checkAuth, async (req, res) => {
 app.get('/posts/:id', async (req, res) => {
     try {
         var post = await Post.findById(req.params.id)
-            .populate('author', 'username')
+            .populate('author', 'username profilePicture')
             .populate({
                 path: 'comments',
-                populate: { path: 'author', select: 'username' }
+                populate: { path: 'author', select: 'username profilePicture' }
             });
         
         if (post) {
@@ -514,7 +515,7 @@ app.get('/users', checkAuth, async (req, res) => {
 app.get('/users/:id', async (req, res) => {
     try {
         var user = await User.findById(req.params.id).select('-password');
-        var posts = await Post.find({ author: req.params.id }).populate('author', 'username');
+        var posts = await Post.find({ author: req.params.id }).populate('author', 'username profilePicture');
         res.send({ user: user, posts: posts });
     } catch (error) {
         res.send('Error getting user: ' + error);
@@ -583,6 +584,29 @@ app.put('/profile', checkAuth, async (req, res) => {
     } catch (error) {
         console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Error updating profile: ' + error.message });
+    }
+});
+
+app.post('/users/:id/profile-picture', checkAuth, async (req, res) => {
+    try {
+        const { profilePicture } = req.body;
+        const userId = req.params.id;
+
+        if (req.user.id !== userId && req.user.role !== 'admin') {
+            return res.status(403).send('Not authorized');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        user.profilePicture = profilePicture;
+        await user.save();
+
+        res.send({ message: 'Profile picture updated successfully', profilePicture: user.profilePicture });
+    } catch (error) {
+        res.status(500).send('Error updating profile picture: ' + error);
     }
 });
 app.post("/posts/:id/like", checkAuth, async (req, res) => {
