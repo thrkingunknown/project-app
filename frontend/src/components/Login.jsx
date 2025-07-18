@@ -59,7 +59,7 @@ const Login = () => {
         } else if (error.response?.status === 403) {
           errorMessage = "Account not verified. Please check your email.";
         } else if (error.response?.status === 429) {
-          errorMessage = "Too many login attempts. Please try again later.";
+          errorMessage = error.response?.data?.message || "Too many login attempts. Please try again later.";
         } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         }
