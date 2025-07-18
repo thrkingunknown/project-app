@@ -44,7 +44,7 @@ const ForgotPasswordEmail = () => {
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/forgot-password`, { email })
       .then((response) => {
-        setMessage(response.data);
+        setMessage(response.data.message);
         setIsError(false);
         setIsSuccess(true);
       })

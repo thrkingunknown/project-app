@@ -11,13 +11,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ResendVerification = () => {
-  var navigate = useNavigate();
-  var [email, setEmail] = useState("");
-  var [message, setMessage] = useState("");
-  var [loading, setLoading] = useState(false);
-  var [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  var handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
@@ -29,24 +29,49 @@ const ResendVerification = () => {
     setMessage("");
 
     try {
-      var response = await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/resend-verification`,
         {
           email: email,
         },
       );
 
-      setMessage(response.data);
+      setMessage(response.data.message);
       setSuccess(true);
     } catch (error) {
-      setMessage("Error sending verification email. Please try again.");
-      setSuccess(false);
+      console.log("Resend verification error:", error.response?.status, error.response?.data);
+
+      let errorMessage = "Error sending verification email. Please try again.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+
+        // Handle specific backend messages
+        if (errorMessage.includes("already verified")) {
+          setSuccess(true); // Treat "already verified" as success
+        } else {
+          setSuccess(false);
+        }
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid request. Please check your email address.";
+        setSuccess(false);
+      } else if (error.response?.status === 404) {
+        errorMessage = "No account found with this email address.";
+        setSuccess(false);
+      } else if (error.response?.status === 500) {
+        errorMessage = "Server error occurred. Please try again later.";
+        setSuccess(false);
+      } else {
+        setSuccess(false);
+      }
+
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  var handleGoToLogin = () => {
+  const handleGoToLogin = () => {
     navigate("/login");
   };
 

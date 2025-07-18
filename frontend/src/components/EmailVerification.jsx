@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Paper,
@@ -10,10 +10,10 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const EmailVerification = () => {
-  var [searchParams] = useSearchParams();
-  var navigate = useNavigate();
-  var [status, setStatus] = useState("verifying");
-  var [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [status, setStatus] = useState("verifying");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -24,25 +24,55 @@ const EmailVerification = () => {
       return;
     }
 
+    let isCancelled = false;
+
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/verify-email?token=${token}`)
       .then((response) => {
-        setStatus("success");
-        setMessage(response.data);
+        if (!isCancelled) {
+          setStatus("success");
+          setMessage(response.data.message);
+        }
       })
-      .catch(() => {
-        setStatus("error");
-        setMessage(
-          "Error verifying email. Please try again or contact support.",
-        );
+      .catch((error) => {
+        if (!isCancelled) {
+          console.log("Verification error:", error.response?.status, error.response?.data);
+
+          if (error.response?.data?.message?.includes("already verified")) {
+            setStatus("success");
+            setMessage(error.response.data.message);
+            return;
+          }
+
+          setStatus("error");
+          let errorMessage = "Error verifying email. Please try again.";
+
+          if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response?.status === 400) {
+            errorMessage = "Verification token has expired. Please request a new verification email.";
+          } else if (error.response?.status === 404) {
+            errorMessage = "Invalid verification token. Please request a new verification email.";
+          } else if (error.response?.status === 406) {
+            errorMessage = "Invalid verification token. Please request a new verification email.";
+          } else if (error.response?.status === 500) {
+            errorMessage = "Server error occurred. Please try again later.";
+          }
+
+          setMessage(errorMessage);
+        }
       });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [searchParams]);
 
-  var handleGoToLogin = () => {
+  const handleGoToLogin = () => {
     navigate("/login");
   };
 
-  var handleGoHome = () => {
+  const handleGoHome = () => {
     navigate("/");
   };
 
@@ -94,15 +124,19 @@ const EmailVerification = () => {
         {status === "error" && (
           <>
             <Typography variant="h4" gutterBottom style={{ color: "red" }}>
-              ❌ Verification Failed
+              ❌ Verification Issue
             </Typography>
             <Typography variant="body1" gutterBottom>
               {message}
             </Typography>
             <br />
             <Typography variant="body2" color="textSecondary" gutterBottom>
-              The verification link may have expired or is invalid. You can
-              request a new verification email from the login page.
+              {message.includes("expired")
+                ? "Please request a new verification email to continue."
+                : message.includes("Invalid")
+                ? "Please request a new verification email from the login page."
+                : "You can request a new verification email from the login page."
+              }
             </Typography>
             <br />
             <Button
