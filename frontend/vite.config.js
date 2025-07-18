@@ -16,8 +16,6 @@ export default defineConfig(async ({ mode }) => {
 
   const postRoutes = postIds.map(id => `/post/${id}`);
 
-  console.log(`Sitemap will include ${postRoutes.length} post routes`);
-
   const hostname = env.VITE_FRONTEND_URL || 'https://faxrn.vercel.app/';
 
   return {
@@ -31,10 +29,9 @@ export default defineConfig(async ({ mode }) => {
       }),
     ],
     build: {
-      sourcemap: true, // Enable source maps for production
+      sourcemap: true,
       rollupOptions: {
         output: {
-          // Separate source maps from main bundles for security
           sourcemapExcludeSources: true,
         }
       }

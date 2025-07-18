@@ -40,23 +40,35 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log("users", res.data);
         setUsers(res.data);
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error loading users", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error loading users";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized to view users";
+          navigate("/login");
+        } else if (error.response?.status === 403) {
+          errorMessage = "Admin access required";
+          navigate("/");
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
 
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
-        console.log("posts", res.data);
         setPosts(res.data);
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error loading posts", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error loading posts";
+        if (error.response?.status === 500) {
+          errorMessage = "Server error while loading posts";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   }, [currentUser.role, navigate, token]);
 
@@ -70,14 +82,23 @@ const AdminDashboard = () => {
       .delete(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         setSnackbar({ open: true, message: "User deleted successfully", severity: "success" });
         setUsers(users.filter(user => user._id !== userId));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error deleting user", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error deleting user";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized to delete users";
+          navigate("/login");
+        } else if (error.response?.status === 403) {
+          errorMessage = "Admin access required to delete users";
+        } else if (error.response?.status === 404) {
+          errorMessage = "User not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 
@@ -86,18 +107,27 @@ const AdminDashboard = () => {
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
         setPosts(posts.filter(post => post._id !== postId));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error deleting post";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized to delete posts";
+          navigate("/login");
+        } else if (error.response?.status === 403) {
+          errorMessage = "Not authorized to delete this post";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 
-  var handleTabChange = (event, newValue) => {
+  var handleTabChange = (_event, newValue) => {
     setTabValue(newValue);
   };
 

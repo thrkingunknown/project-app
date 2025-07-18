@@ -48,7 +48,6 @@ const ForgotPasswordReset = () => {
   };
 
   var submitHandler = () => {
-    console.log("reset password data", data);
     setMessage("");
     setIsError(false);
     setIsLoading(true);
@@ -87,18 +86,24 @@ const ForgotPasswordReset = () => {
         newPassword: data.newPassword,
       })
       .then((response) => {
-        console.log("Password reset response:", response.data);
         setMessage(response.data);
         setIsError(false);
         setIsSuccess(true);
-        
+
         setTimeout(() => {
           navigate("/login");
         }, 3000);
       })
       .catch((error) => {
-        console.error("Error resetting password:", error);
-        setMessage("Error resetting password");
+        let errorMessage = "Error resetting password";
+        if (error.response?.status === 400) {
+          errorMessage = "Invalid or expired reset token";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Reset token not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setMessage(errorMessage);
         setIsError(true);
       })
       .finally(() => {

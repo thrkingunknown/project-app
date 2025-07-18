@@ -47,9 +47,16 @@ const SearchResults = () => {
         `${import.meta.env.VITE_BACKEND_URL}/search?q=${encodeURIComponent(searchQuery)}`
       );
       setPosts(response.data);
-    } catch (err) {
-      console.error("Error searching posts:", err);
-      setError("Failed to search posts. Please try again.");
+    } catch (error) {
+      let errorMessage = "Failed to search posts. Please try again.";
+      if (error.response?.status === 400) {
+        errorMessage = "Invalid search query";
+      } else if (error.response?.status === 500) {
+        errorMessage = "Server error during search";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      setError(errorMessage);
       setPosts([]);
     } finally {
       setLoading(false);
@@ -72,16 +79,22 @@ const SearchResults = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log(res);
         setPosts(posts.map(post =>
           post._id === id
             ? { ...post, likes: res.data.likes, likedBy: res.data.likedBy }
             : post
         ));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error liking post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error liking post";
+        if (error.response?.status === 401) {
+          errorMessage = "Please login to like posts";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 
