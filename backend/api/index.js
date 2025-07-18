@@ -146,19 +146,48 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.ip;
+
+        const now = Date.now();
+        const attempts = loginAttempts.get(email) || [];
+        const recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000);
+
+        const ipAttempts = ipLoginAttempts.get(clientIP) || [];
+        const recentIpAttempts = ipAttempts.filter(time => now - time < 15 * 60 * 1000);
+
+        if (recentAttempts.length >= 5) {
+            return res.status(429).json({ message: 'Too many login attempts for this email. Please try again later.' });
+        }
+
+        if (recentIpAttempts.length >= 10) {
+            return res.status(429).json({ message: 'Too many login attempts from this IP. Please try again later.' });
+        }
+
         const user = await User.findOne({ email: email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            recentAttempts.push(now);
+            recentIpAttempts.push(now);
+            loginAttempts.set(email, recentAttempts);
+            ipLoginAttempts.set(clientIP, recentIpAttempts);
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            recentAttempts.push(now);
+            recentIpAttempts.push(now);
+            loginAttempts.set(email, recentAttempts);
+            ipLoginAttempts.set(clientIP, recentIpAttempts);
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         if (!user.isVerified) {
             return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox for verification link.' });
         }
+
+        loginAttempts.delete(email);
+        ipLoginAttempts.delete(clientIP);
 
         const token = jwt.sign({
             id: user._id,
@@ -228,14 +257,27 @@ app.post('/resend-verification', async (req, res) => {
             return res.status(400).json({ message: 'Email is required' });
         }
 
+        const now = Date.now();
+        const attempts = resendVerificationAttempts.get(email) || [];
+        const recentAttempts = attempts.filter(time => now - time < 15 * 60 * 1000);
+
+        if (recentAttempts.length >= 3) {
+            return res.status(429).json({ message: 'Too many verification email requests. Please try again later.' });
+        }
+
         const user = await User.findOne({ email: email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            recentAttempts.push(now);
+            resendVerificationAttempts.set(email, recentAttempts);
+            return res.status(200).json({ message: 'If an account with that email exists, a verification email has been sent.' });
         }
 
         if (user.isVerified) {
             return res.status(400).json({ message: 'Email is already verified' });
         }
+
+        recentAttempts.push(now);
+        resendVerificationAttempts.set(email, recentAttempts);
 
         const verificationToken = crypto.randomBytes(32).toString('hex');
         const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -253,6 +295,50 @@ app.post('/resend-verification', async (req, res) => {
 });
 
 const forgotPasswordAttempts = new Map();
+const loginAttempts = new Map();
+const ipLoginAttempts = new Map();
+const resendVerificationAttempts = new Map();
+
+setInterval(() => {
+    const now = Date.now();
+    const fifteenMinutesAgo = now - 15 * 60 * 1000;
+
+    for (const [key, attempts] of loginAttempts.entries()) {
+        const recentAttempts = attempts.filter(time => time > fifteenMinutesAgo);
+        if (recentAttempts.length === 0) {
+            loginAttempts.delete(key);
+        } else {
+            loginAttempts.set(key, recentAttempts);
+        }
+    }
+
+    for (const [key, attempts] of ipLoginAttempts.entries()) {
+        const recentAttempts = attempts.filter(time => time > fifteenMinutesAgo);
+        if (recentAttempts.length === 0) {
+            ipLoginAttempts.delete(key);
+        } else {
+            ipLoginAttempts.set(key, recentAttempts);
+        }
+    }
+
+    for (const [key, attempts] of forgotPasswordAttempts.entries()) {
+        const recentAttempts = attempts.filter(time => time > fifteenMinutesAgo);
+        if (recentAttempts.length === 0) {
+            forgotPasswordAttempts.delete(key);
+        } else {
+            forgotPasswordAttempts.set(key, recentAttempts);
+        }
+    }
+
+    for (const [key, attempts] of resendVerificationAttempts.entries()) {
+        const recentAttempts = attempts.filter(time => time > fifteenMinutesAgo);
+        if (recentAttempts.length === 0) {
+            resendVerificationAttempts.delete(key);
+        } else {
+            resendVerificationAttempts.set(key, recentAttempts);
+        }
+    }
+}, 60 * 60 * 1000);
 
 app.post('/forgot-password', async (req, res) => {
     try {
