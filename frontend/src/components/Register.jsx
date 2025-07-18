@@ -55,11 +55,9 @@ const Register = () => {
 
   var inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
 
   var submitHandler = () => {
-    console.log(isEditMode ? "update profile data" : "register data", data);
     setMessage("");
     setIsError(false);
     setIsLoading(true);
@@ -83,7 +81,6 @@ const Register = () => {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then((response) => {
-          console.log("Profile updated successfully:", response.data);
           setMessage("Profile updated successfully!");
           setIsError(false);
 
@@ -98,8 +95,15 @@ const Register = () => {
           }, 2000);
         })
         .catch((error) => {
-          console.error("Error updating profile:", error);
-          setMessage(error.response?.data?.message || "Error updating profile");
+          let errorMessage = "Error updating profile";
+          if (error.response?.status === 401) {
+            errorMessage = "Not authorized. Please login again.";
+          } else if (error.response?.status === 400) {
+            errorMessage = error.response.data?.message || "Invalid profile data";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          setMessage(errorMessage);
           setIsError(true);
         })
         .finally(() => {
@@ -109,7 +113,6 @@ const Register = () => {
       axios
         .post(`${import.meta.env.VITE_BACKEND_URL}/register`, data)
         .then((response) => {
-          console.log("Registration successful:", response.data);
           setMessage(response.data);
           setIsError(false);
           setTimeout(() => {
@@ -117,8 +120,17 @@ const Register = () => {
           }, 3000);
         })
         .catch((error) => {
-          console.error("Error registering:", error);
-          setMessage("Error registering user");
+          let errorMessage = "Error registering user";
+          if (error.response?.status === 400) {
+            errorMessage = error.response.data?.message || "Invalid registration data";
+          } else if (error.response?.status === 409) {
+            errorMessage = "Email already exists. Please use a different email.";
+          } else if (error.response?.status === 429) {
+            errorMessage = "Too many registration attempts. Please try again later.";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          setMessage(errorMessage);
           setIsError(true);
         })
         .finally(() => {

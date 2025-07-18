@@ -62,7 +62,6 @@ const CreatePost = () => {
 
   const inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
 
   const handleImageUpload = (event) => {
@@ -105,32 +104,47 @@ const CreatePost = () => {
         .put(`${import.meta.env.VITE_BACKEND_URL}/posts/${location.state._id}`, data, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then((res) => {
-          console.log(res);
+        .then(() => {
           setSnackbar({ open: true, message: "Post updated successfully!", severity: "success" });
           setTimeout(() => navigate("/"), 2000);
         })
-        .catch((err) => {
-          console.log(err);
-          setSnackbar({ open: true, message: "Error updating post", severity: "error" });
+        .catch((error) => {
+          let errorMessage = "Error updating post";
+          if (error.response?.status === 401) {
+            errorMessage = "Not authorized. Please login again.";
+          } else if (error.response?.status === 403) {
+            errorMessage = "Not authorized to update this post";
+          } else if (error.response?.status === 404) {
+            errorMessage = "Post not found";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          setSnackbar({ open: true, message: errorMessage, severity: "error" });
         })
         .finally(() => {
           setIsLoading(false);
         });
     } else {
-      console.log("creating post", data);
       axios
         .post(`${import.meta.env.VITE_BACKEND_URL}/posts`, data, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then((response) => {
-          console.log("Post created successfully:", response.data);
+        .then(() => {
           setSnackbar({ open: true, message: "Post created successfully!", severity: "success" });
           setTimeout(() => navigate("/"), 2000);
         })
         .catch((error) => {
-          console.error("Error creating post:", error);
-          setSnackbar({ open: true, message: "Error creating post", severity: "error" });
+          let errorMessage = "Error creating post";
+          if (error.response?.status === 401) {
+            errorMessage = "Not authorized. Please login again.";
+          } else if (error.response?.status === 400) {
+            errorMessage = error.response.data?.message || "Invalid post data";
+          } else if (error.response?.status === 413) {
+            errorMessage = "Post content or image too large";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          setSnackbar({ open: true, message: errorMessage, severity: "error" });
         })
         .finally(() => {
           setIsLoading(false);

@@ -27,12 +27,10 @@ const EmailVerification = () => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/verify-email?token=${token}`)
       .then((response) => {
-        console.log("Verification response:", response.data);
         setStatus("success");
         setMessage(response.data);
       })
-      .catch((error) => {
-        console.error("Verification error:", error);
+      .catch(() => {
         setStatus("error");
         setMessage(
           "Error verifying email. Please try again or contact support.",

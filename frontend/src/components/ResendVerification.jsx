@@ -36,11 +36,9 @@ const ResendVerification = () => {
         },
       );
 
-      console.log("Resend verification response:", response.data);
       setMessage(response.data);
       setSuccess(true);
     } catch (error) {
-      console.error("Resend verification error:", error);
       setMessage("Error sending verification email. Please try again.");
       setSuccess(false);
     } finally {

@@ -30,7 +30,6 @@ const ForgotPasswordEmail = () => {
   };
 
   const submitHandler = () => {
-    console.log("forgot password email", email);
     setMessage("");
     setIsError(false);
     setIsLoading(true);
@@ -45,16 +44,20 @@ const ForgotPasswordEmail = () => {
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/forgot-password`, { email })
       .then((response) => {
-        console.log("Forgot password response:", response.data);
-
-        // Always show success message to prevent user enumeration
         setMessage(response.data);
         setIsError(false);
         setIsSuccess(true);
       })
       .catch((error) => {
-        console.error("Error sending reset email:", error);
-        setMessage("Error sending reset email");
+        let errorMessage = "Error sending reset email";
+        if (error.response?.status === 400) {
+          errorMessage = "Invalid email address";
+        } else if (error.response?.status === 429) {
+          errorMessage = "Too many reset attempts. Please try again later.";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setMessage(errorMessage);
         setIsError(true);
       })
       .finally(() => {

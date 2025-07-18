@@ -30,17 +30,17 @@ const Home = () => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts`)
       .then((res) => {
-        console.log(res);
         if (Array.isArray(res.data)) {
           setPosts(res.data);
         } else {
-          console.error("Posts data is not an array:", res.data);
           setPosts([]);
         }
       })
-      .catch((err) => {
-        console.error("Error fetching posts:", err);
+      .catch((error) => {
         setPosts([]);
+        if (error.response?.status === 500) {
+          setSnackbar({ open: true, message: "Server error loading posts", severity: "error" });
+        }
       })
       .finally(() => {
         setLoading(false);
@@ -58,19 +58,26 @@ const Home = () => {
       return;
     }
 
-    console.log("deleting post", id);
     axios
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
         setPosts(posts.filter(post => post._id !== id));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error deleting post";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized. Please login again.";
+        } else if (error.response?.status === 403) {
+          errorMessage = "Not authorized to delete this post";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 
@@ -86,16 +93,22 @@ const Home = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log(res);
         setPosts(posts.map(post =>
           post._id === id
             ? { ...post, likes: res.data.likes, likedBy: res.data.likedBy }
             : post
         ));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error liking post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error liking post";
+        if (error.response?.status === 401) {
+          errorMessage = "Please login to like posts";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 

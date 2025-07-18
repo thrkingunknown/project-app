@@ -568,9 +568,7 @@ const Navbar = () => {
                   ))}
                 </Menu>
               </>
-            ) : (
-              console.log("Not Logged In")
-            )}
+            ) : null}
           </Box>
         </Toolbar>
       </Container>

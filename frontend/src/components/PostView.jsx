@@ -61,12 +61,18 @@ const PostView = () => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`)
       .then((res) => {
-        console.log("post data", res.data);
         setPost(res.data);
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error loading post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error loading post";
+        if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.status === 500) {
+          errorMessage = "Server error loading post";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   }, [id]);
 
@@ -75,19 +81,26 @@ const PostView = () => {
       .delete(`${import.meta.env.VITE_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         setSnackbar({ open: true, message: "Post deleted successfully", severity: "success" });
         setTimeout(() => navigate("/"), 2000);
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error deleting post", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error deleting post";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized. Please login again.";
+        } else if (error.response?.status === 403) {
+          errorMessage = "Not authorized to delete this post";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 
   const handlePostEdit = (postData) => {
-    console.log(postData);
     navigate(`/create-post`, { state: postData });
   };
 
@@ -102,28 +115,28 @@ const PostView = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log(res);
         setPost((prevPost) => ({
           ...prevPost,
           likes: res.data.likes,
           likedBy: res.data.likedBy,
         }));
-        console.log(res.data.message);
       })
-      .catch((err) => {
-        console.log(err);
-        if (err.response?.data?.error) {
-          showSnackbar(err.response.data.error);
-        } else if (err.response?.data) {
-          showSnackbar(err.response.data);
-        } else {
-          showSnackbar("Error processing like");
+      .catch((error) => {
+        let errorMessage = "Error processing like";
+        if (error.response?.status === 401) {
+          errorMessage = "Please login to like posts";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Post not found";
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
         }
+        showSnackbar(errorMessage);
       });
   };
 
   const handleCommentEdit = (commentData) => {
-    console.log(commentData);
     setComment(commentData.content);
     setCommEdit(true);
     setEditingCommentId(commentData._id);
@@ -151,14 +164,22 @@ const PostView = () => {
           { headers: { Authorization: `Bearer ${token}` } },
         )
         .then((res) => {
-          console.log(res);
           showSnackbar(res.data, "success");
           setComment("");
           window.location.reload();
         })
-        .catch((err) => {
-          console.log(err);
-          showSnackbar("Error adding comment");
+        .catch((error) => {
+          let errorMessage = "Error adding comment";
+          if (error.response?.status === 401) {
+            errorMessage = "Please login to comment";
+          } else if (error.response?.status === 400) {
+            errorMessage = "Invalid comment content";
+          } else if (error.response?.status === 404) {
+            errorMessage = "Post not found";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          showSnackbar(errorMessage);
         })
         .finally(() => {
           setIsLoading(false);
@@ -171,16 +192,24 @@ const PostView = () => {
           { headers: { Authorization: `Bearer ${token}` } },
         )
         .then((res) => {
-          console.log(res);
           showSnackbar(res.data, "success");
           setComment("");
           setCommEdit(false);
           setEditingCommentId(null);
           window.location.reload();
         })
-        .catch((err) => {
-          console.log(err);
-          showSnackbar("Error updating comment");
+        .catch((error) => {
+          let errorMessage = "Error updating comment";
+          if (error.response?.status === 401) {
+            errorMessage = "Not authorized to update comment";
+          } else if (error.response?.status === 403) {
+            errorMessage = "Not authorized to update this comment";
+          } else if (error.response?.status === 404) {
+            errorMessage = "Comment not found";
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          showSnackbar(errorMessage);
         })
         .finally(() => {
           setIsLoading(false);
@@ -197,17 +226,25 @@ const PostView = () => {
       .delete(`${import.meta.env.VITE_BACKEND_URL}/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         setSnackbar({ open: true, message: "Comment deleted successfully", severity: "success" });
         setPost(prevPost => ({
           ...prevPost,
           comments: prevPost.comments.filter(comment => comment._id !== commentId)
         }));
       })
-      .catch((err) => {
-        console.log(err);
-        setSnackbar({ open: true, message: "Error deleting comment", severity: "error" });
+      .catch((error) => {
+        let errorMessage = "Error deleting comment";
+        if (error.response?.status === 401) {
+          errorMessage = "Not authorized to delete comment";
+        } else if (error.response?.status === 403) {
+          errorMessage = "Not authorized to delete this comment";
+        } else if (error.response?.status === 404) {
+          errorMessage = "Comment not found";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setSnackbar({ open: true, message: errorMessage, severity: "error" });
       });
   };
 

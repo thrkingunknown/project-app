@@ -31,11 +31,9 @@ const Login = () => {
 
   var inputHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
 
   var submitHandler = () => {
-    console.log("login data", data);
     setMessage("");
     setIsError(false);
     setIsLoading(true);
@@ -43,7 +41,6 @@ const Login = () => {
     axios
       .post(`${import.meta.env.VITE_BACKEND_URL}/login`, data)
       .then((response) => {
-        console.log("Login successful:", response.data);
         if (response.data.token) {
           localStorage.setItem("token", response.data.token);
           localStorage.setItem("user", JSON.stringify(response.data.user));
@@ -56,8 +53,17 @@ const Login = () => {
         }
       })
       .catch((error) => {
-        console.error("Error logging in:", error);
-        setMessage("Error logging in");
+        let errorMessage = "Error logging in";
+        if (error.response?.status === 401) {
+          errorMessage = "Invalid email or password";
+        } else if (error.response?.status === 403) {
+          errorMessage = "Account not verified. Please check your email.";
+        } else if (error.response?.status === 429) {
+          errorMessage = "Too many login attempts. Please try again later.";
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        setMessage(errorMessage);
         setIsError(true);
       })
       .finally(() => {
