@@ -236,7 +236,13 @@ const PostView = () => {
         setReportReason("");
       })
       .catch((err) => {
-        showSnackbar(err.response?.data || "Error reporting post");
+        if (err.response?.data?.message) {
+          showSnackbar(err.response.data.message);
+        } else {
+          showSnackbar("Error reporting post");
+        }
+        setReportDialogOpen(false);
+        setReportReason("");
       });
   };
 
