@@ -232,15 +232,11 @@ const PostView = () => {
       )
       .then((res) => {
         showSnackbar("Post reported successfully", "success");
-        setReportDialogOpen(false);
-        setReportReason("");
       })
       .catch((err) => {
-        if (err.response?.data?.message) {
-          showSnackbar(err.response.data.message);
-        } else {
-          showSnackbar("Error reporting post");
-        }
+        showSnackbar(err.response?.data?.message || "Error reporting post");
+      })
+      .finally(() => {
         setReportDialogOpen(false);
         setReportReason("");
       });
