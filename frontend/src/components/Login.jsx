@@ -48,7 +48,7 @@ const Login = () => {
           setIsError(false);
           setTimeout(() => navigate("/"), 1000);
         } else {
-          setMessage(response.data);
+          setMessage(response.data.message || "Login failed");
           setIsError(true);
         }
       })

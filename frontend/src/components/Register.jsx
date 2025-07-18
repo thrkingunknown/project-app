@@ -113,7 +113,7 @@ const Register = () => {
       axios
         .post(`${import.meta.env.VITE_BACKEND_URL}/register`, data)
         .then((response) => {
-          setMessage(response.data);
+          setMessage(response.data.message);
           setIsError(false);
           setTimeout(() => {
             navigate("/login");

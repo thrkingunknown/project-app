@@ -189,22 +189,32 @@ app.get('/verify-email', async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: 'Verification token is required' });
         }
-        
-        const user = await User.findOne({
+
+        let user = await User.findOne({
             verificationToken: token,
             verificationTokenExpires: { $gt: Date.now() }
         });
 
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid or expired verification token' });
+        if (user) {
+            user.isVerified = true;
+            user.verificationToken = undefined;
+            user.verificationTokenExpires = undefined;
+            await user.save();
+            return res.status(200).json({ message: 'Email verified successfully! You can now login to your account.' });
         }
 
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpires = undefined;
-        await user.save();
+        user = await User.findOne({ verificationToken: token });
 
-        res.status(200).json({ message: 'Email verified successfully! You can now login to your account.' });
+        if (user) {
+            if (user.isVerified) {
+
+                return res.status(200).json({ message: 'Email already verified! You can login to your account.' });
+            } else {
+                return res.status(400).json({ message: 'Verification token has expired. Please request a new verification email.' });
+            }
+        }
+
+        return res.status(406).json({ message: 'Invalid verification token. Please request a new verification email.' });
     } catch (error) {
         res.status(500).json({ message: 'Error verifying email', error: error.message });
     }
@@ -213,6 +223,10 @@ app.get('/verify-email', async (req, res) => {
 app.post('/resend-verification', async (req, res) => {
     try {
         const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
 
         const user = await User.findOne({ email: email });
         if (!user) {

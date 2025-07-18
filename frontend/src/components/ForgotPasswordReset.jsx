@@ -86,7 +86,7 @@ const ForgotPasswordReset = () => {
         newPassword: data.newPassword,
       })
       .then((response) => {
-        setMessage(response.data);
+        setMessage(response.data.message);
         setIsError(false);
         setIsSuccess(true);
 
