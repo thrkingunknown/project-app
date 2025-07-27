@@ -10,4 +10,4 @@ updates:
           - "/frontend"
           - "/backend" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
